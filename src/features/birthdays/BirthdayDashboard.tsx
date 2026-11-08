@@ -16,7 +16,7 @@ export default function BirthdayDashboard() {
   const [students, setStudents] = useState<StudentBirthday[]>([]);
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
-  const [now] = useState(() => new Date());
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
     let cancelled = false;
@@ -30,6 +30,17 @@ export default function BirthdayDashboard() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const currentTime = new Date();
+    const nextMidnight = new Date(currentTime);
+    nextMidnight.setHours(24, 0, 0, 0);
+    const timer = window.setTimeout(() => {
+      setNow(new Date());
+    }, nextMidnight.getTime() - currentTime.getTime());
+
+    return () => window.clearTimeout(timer);
+  }, [now]);
 
   const todaysBirthdays = useMemo(
     () => getTodaysBirthdays(students, now),

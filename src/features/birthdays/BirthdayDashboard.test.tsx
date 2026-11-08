@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -121,6 +122,19 @@ describe("birthday dashboard", () => {
     expect(screen.getByText("Row 3: birthDate must use the YYYY-MM-DD format.")).toBeInTheDocument();
   });
 
+  it("counts multiple validation errors on one CSV row as one rejected row", async () => {
+    render(<BirthdayDashboard />);
+
+    uploadCsv("className,message\nClass 7A,Hello");
+
+    expect(
+      await screen.findByText("No students were imported. Rejected 1 row."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("No students were imported. Rejected 2 rows."),
+    ).not.toBeInTheDocument();
+  });
+
   it("searches upcoming birthdays by student name or class", async () => {
     storeStudents(futureStudents);
     render(<BirthdayDashboard />);
@@ -164,6 +178,43 @@ describe("birthday dashboard", () => {
       within(today).getByText(/Have a brilliant birthday!/),
     ).toBeInTheDocument();
     expect(within(today).getByText("Today")).toBeInTheDocument();
+  });
+
+  it("refreshes today's and upcoming birthdays across local midnight", async () => {
+    vi.setSystemTime(new Date(2026, 10, 8, 23, 59, 30));
+    storeStudents([todayStudent, futureStudents[1]]);
+    render(<BirthdayDashboard />);
+
+    const beforeMidnight = await screen.findByRole("region", {
+      name: "Today's birthdays",
+    });
+    expect(
+      within(beforeMidnight).getByRole("heading", { name: "Maya Chen" }),
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_001);
+    });
+
+    const afterMidnight = screen.getByRole("region", {
+      name: "Today's birthdays",
+    });
+    expect(
+      within(afterMidnight).getByRole("heading", { name: "Ari Singh" }),
+    ).toBeInTheDocument();
+    expect(
+      within(afterMidnight).queryByRole("heading", { name: "Maya Chen" }),
+    ).not.toBeInTheDocument();
+
+    const upcoming = screen.getByRole("region", {
+      name: "Upcoming birthdays",
+    });
+    expect(
+      within(upcoming).getByRole("heading", { name: "Maya Chen" }),
+    ).toBeInTheDocument();
+    expect(
+      within(upcoming).queryByRole("heading", { name: "Ari Singh" }),
+    ).not.toBeInTheDocument();
   });
 
   it("orders upcoming birthdays by the next celebration date", async () => {

@@ -43,10 +43,13 @@ export default function CsvImporter({
     }
   }
 
+  const rejectedRowCount = result
+    ? new Set(result.rejected.map((error) => error.row)).size
+    : 0;
   const summary = result
     ? result.accepted.length > 0
-      ? `Imported ${result.accepted.length} ${plural(result.accepted.length, "student", "students")}. Rejected ${result.rejected.length} ${plural(result.rejected.length, "row", "rows")}.`
-      : `No students were imported. Rejected ${result.rejected.length} ${plural(result.rejected.length, "row", "rows")}.`
+      ? `Imported ${result.accepted.length} ${plural(result.accepted.length, "student", "students")}. Rejected ${rejectedRowCount} ${plural(rejectedRowCount, "row", "rows")}.`
+      : `No students were imported. Rejected ${rejectedRowCount} ${plural(rejectedRowCount, "row", "rows")}.`
     : null;
 
   return (
