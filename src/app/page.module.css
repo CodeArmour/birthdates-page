@@ -53,7 +53,7 @@
   padding: 0.65rem 1.15rem;
   background: var(--color-coral);
   box-shadow: 4px 4px 0 var(--color-navy);
-  color: white;
+  color: var(--color-navy);
   cursor: pointer;
   font-weight: 800;
   transition: box-shadow 160ms ease, transform 160ms ease;
