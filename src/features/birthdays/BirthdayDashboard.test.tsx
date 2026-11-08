@@ -4,13 +4,11 @@ import {
   fireEvent,
   render,
   screen,
-  waitFor,
   within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import BirthdayDashboard from "./BirthdayDashboard";
-import type { StudentBirthday } from "./types";
 
 const STORAGE_KEY = "student-birthdays:v1";
 
@@ -41,59 +39,12 @@ function installNotification(
   return { notifications, requestPermission };
 }
 
-function storeStudents(students: StudentBirthday[]) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-}
-
-function csvFile(contents: string) {
-  const file = new File([contents], "birthdays.csv", { type: "text/csv" });
-  Object.defineProperty(file, "text", {
-    value: vi.fn().mockResolvedValue(contents),
-  });
-  return file;
-}
-
-function uploadCsv(contents: string) {
-  fireEvent.change(screen.getByLabelText("Choose CSV file"), {
-    target: { files: [csvFile(contents)] },
-  });
-}
-
-const todayStudent: StudentBirthday = {
-  id: "maya:2012-11-08",
-  name: "Maya Chen",
-  birthDate: "2012-11-08",
-  className: "Class 7A",
-  message: "Have a brilliant birthday!",
-};
-
-const futureStudents: StudentBirthday[] = [
-  {
-    id: "zoe:2013-12-02",
-    name: "Zoe Bell",
-    birthDate: "2013-12-02",
-    className: "Class 7B",
-  },
-  {
-    id: "ari:2012-11-09",
-    name: "Ari Singh",
-    birthDate: "2012-11-09",
-    className: "Class 7A",
-  },
-  {
-    id: "leo:2012-11-20",
-    name: "Leo Park",
-    birthDate: "2012-11-20",
-    className: "Class 8A",
-  },
-];
-
 describe("birthday dashboard", () => {
   beforeEach(() => {
     window.localStorage.clear();
     Reflect.deleteProperty(window, "Notification");
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date(2026, 10, 8, 12));
+    vi.setSystemTime(new Date(2026, 10, 5, 12));
   });
 
   afterEach(() => {
@@ -102,172 +53,84 @@ describe("birthday dashboard", () => {
     vi.useRealTimers();
   });
 
-  it("replaces stored birthdays after importing a two-column CSV and shows its format", async () => {
-    storeStudents([todayStudent]);
+  it("immediately renders all 35 built-in birthdays without an upload", () => {
     render(<BirthdayDashboard />);
 
-    uploadCsv(
-      "name,birthDate\nNoah Williams,2013-11-14",
-    );
+    expect(screen.getAllByRole("article")).toHaveLength(35);
+    expect(screen.getByRole("heading", { name: "Noella" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Omar" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "No birthdays yet" })).not.toBeInTheDocument();
+  });
 
-    expect(await screen.findByText("Imported 1 student. Rejected 0 rows.")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Noah Williams" })).toBeInTheDocument();
-    expect(screen.getByText(/CSV columns:/)).toHaveTextContent(
-      /^CSV columns: name, birthDate$/,
+  it("has no public CSV, replace-data, or class controls", () => {
+    const { container } = render(<BirthdayDashboard />);
+
+    expect(container.querySelector('input[type="file"]')).toBeNull();
+    expect(screen.queryByLabelText(/choose csv/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /import|upload|replace data/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/csv/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+  });
+
+  it("ignores previously saved birthdays and never reads or writes birthday records", async () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([{ id: "old", name: "Legacy", birthDate: "2000-11-05" }]),
     );
-    expect(screen.queryByText("Maya Chen")).not.toBeInTheDocument();
-    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]")).toEqual([
-      expect.objectContaining({ name: "Noah Williams", birthDate: "2013-11-14" }),
+    const getItem = vi.spyOn(Storage.prototype, "getItem");
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+    const { notifications } = installNotification("granted");
+    render(<BirthdayDashboard />);
+
+    await act(async () => {});
+    expect(screen.getAllByRole("article")).toHaveLength(35);
+    expect(screen.queryByText("Legacy")).not.toBeInTheDocument();
+    expect(getItem).not.toHaveBeenCalledWith(STORAGE_KEY);
+    expect(getItem.mock.calls).toEqual([
+      ["student-birthdays:last-notified-local-date:v1"],
+    ]);
+    expect(setItem.mock.calls).toEqual([
+      ["student-birthdays:last-notified-local-date:v1", "2026-11-05"],
+    ]);
+    expect(setItem.mock.calls.every(([key]) => key !== STORAGE_KEY)).toBe(true);
+    expect(setItem.mock.calls.every(([, value]) => !value.includes("birthDate"))).toBe(true);
+    expect(notifications).toEqual([
+      { title: "A birthday today! 🎉", body: "Noella is celebrating today." },
     ]);
   });
 
-  it.each([
-    ["invalid", "name,birthDate\n,not-a-date"],
-    ["header-only", "name,birthDate"],
-    ["empty", ""],
-  ])(
-    "preserves stored birthdays after a %s import",
-    async (_case, csvContents) => {
-      storeStudents([todayStudent]);
-      render(<BirthdayDashboard />);
-
-      uploadCsv(csvContents);
-
-      expect(
-        await screen.findByText("No students were imported. Rejected 1 row."),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("heading", { name: "Maya Chen" }),
-      ).toBeInTheDocument();
-      expect(
-        JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"),
-      ).toEqual([todayStudent]);
-    },
-  );
-
-  it("preserves stored birthdays after a malformed quoted import", async () => {
-    storeStudents([todayStudent]);
+  it("searches upcoming birthdays by first name regardless of case or surrounding spaces", () => {
     render(<BirthdayDashboard />);
 
-    uploadCsv(
-      'name,birthDate,className,message\n"Noah Williams,2013-11-14,Class 7C,Enjoy your day!',
-    );
+    const search = screen.getByRole("searchbox", { name: "Search students" });
+    fireEvent.change(search, { target: { value: "  oMaR  " } });
+    const upcoming = screen.getByRole("region", { name: "Upcoming birthdays" });
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(1);
+    expect(within(upcoming).getByRole("heading", { name: "Omar" })).toBeInTheDocument();
+    expect(within(upcoming).queryByRole("heading", { name: "Kadhim" })).not.toBeInTheDocument();
 
-    expect(
-      await screen.findByText("No students were imported. Rejected 1 row."),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Row 2: Quoted field is not closed."),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Maya Chen" }),
-    ).toBeInTheDocument();
-    expect(
-      JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"),
-    ).toEqual([todayStudent]);
+    fireEvent.change(search, { target: { value: "" } });
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(34);
   });
 
-  it("keeps imported data in the session and warns when saving fails", async () => {
-    storeStudents([todayStudent]);
-    render(<BirthdayDashboard />);
-    await screen.findByRole("heading", { name: "Maya Chen" });
-    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
-      throw new Error("Storage is full");
-    });
+  it("highlights today's built-in birthdays without displaying birth years", () => {
+    const { container } = render(<BirthdayDashboard />);
 
-    uploadCsv(
-      "name,birthDate,className\nNoah Williams,2013-11-14,Class 7C",
-    );
-
-    expect(
-      await screen.findByText(
-        "Your imported data is available for this session, but it could not be saved in this browser.",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Noah Williams" }),
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Maya Chen")).not.toBeInTheDocument();
-    expect(
-      JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"),
-    ).toEqual([todayStudent]);
-  });
-
-  it("shows accepted and rejected counts with row-specific feedback", async () => {
-    render(<BirthdayDashboard />);
-
-    uploadCsv(
-      "name,birthDate,className\nSam Rivera,2012-11-18,Class 7A\nTaylor Reed,18/11/2012,Class 7B",
-    );
-
-    expect(await screen.findByText("Imported 1 student. Rejected 1 row.")).toBeInTheDocument();
-    expect(screen.getByText("Row 3: birthDate must use the YYYY-MM-DD format.")).toBeInTheDocument();
-  });
-
-  it("counts multiple validation errors on one CSV row as one rejected row", async () => {
-    render(<BirthdayDashboard />);
-
-    uploadCsv("className,message\nClass 7A,Hello");
-
-    expect(
-      await screen.findByText("No students were imported. Rejected 1 row."),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("No students were imported. Rejected 2 rows."),
-    ).not.toBeInTheDocument();
-  });
-
-  it("searches upcoming birthdays by student name or class", async () => {
-    storeStudents(futureStudents);
-    render(<BirthdayDashboard />);
-
-    const search = await screen.findByRole("searchbox", {
-      name: "Search students or classes",
-    });
-    fireEvent.change(search, { target: { value: "ari" } });
-    expect(screen.getByRole("heading", { name: "Ari Singh" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Zoe Bell" })).not.toBeInTheDocument();
-
-    fireEvent.change(search, { target: { value: "class 7b" } });
-    expect(screen.getByRole("heading", { name: "Zoe Bell" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Ari Singh" })).not.toBeInTheDocument();
-  });
-
-  it("filters upcoming birthdays with the class selector", async () => {
-    storeStudents(futureStudents);
-    render(<BirthdayDashboard />);
-
-    fireEvent.change(
-      await screen.findByRole("combobox", { name: "Filter by class" }),
-      {
-        target: { value: "Class 8A" },
-      },
-    );
-
-    expect(screen.getByRole("heading", { name: "Leo Park" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Ari Singh" })).not.toBeInTheDocument();
-  });
-
-  it("highlights today's birthdays and their personal messages", async () => {
-    storeStudents([todayStudent, ...futureStudents]);
-    render(<BirthdayDashboard />);
-
-    const today = await screen.findByRole("region", {
-      name: "Today's birthdays",
-    });
-    expect(within(today).getByRole("heading", { name: "Maya Chen" })).toBeInTheDocument();
-    expect(
-      within(today).getByText(/Have a brilliant birthday!/),
-    ).toBeInTheDocument();
+    const today = screen.getByRole("region", { name: "Today's birthdays" });
+    expect(within(today).getByRole("heading", { name: "Noella" })).toBeInTheDocument();
     expect(within(today).getByText("Today")).toBeInTheDocument();
+    expect(within(today).getByText("November 5")).toBeInTheDocument();
+    for (const time of container.querySelectorAll("time")) {
+      expect(time.getAttribute("datetime")).toMatch(/^2000-/);
+      expect(time).not.toHaveTextContent(/\d{4}/);
+    }
   });
 
   it("requests notification permission only after the enable action", async () => {
-    storeStudents([todayStudent]);
     const { requestPermission } = installNotification("default", "granted");
     render(<BirthdayDashboard />);
 
-    const enableButton = await screen.findByRole("button", {
+    const enableButton = screen.getByRole("button", {
       name: "Enable birthday notifications",
     });
     expect(requestPermission).not.toHaveBeenCalled();
@@ -283,7 +146,6 @@ describe("birthday dashboard", () => {
   });
 
   it("shows a retryable status when notification permission rejects", async () => {
-    storeStudents(futureStudents);
     const { requestPermission } = installNotification(
       "default",
       "default",
@@ -292,7 +154,7 @@ describe("birthday dashboard", () => {
     render(<BirthdayDashboard />);
 
     fireEvent.click(
-      await screen.findByRole("button", {
+      screen.getByRole("button", {
         name: "Enable birthday notifications",
       }),
     );
@@ -307,9 +169,7 @@ describe("birthday dashboard", () => {
         name: "Try birthday notifications again",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("searchbox", { name: "Search students or classes" }),
-    ).toBeEnabled();
+    expect(screen.getByRole("searchbox", { name: "Search students" })).toBeEnabled();
     expect(requestPermission).toHaveBeenCalledTimes(1);
   });
 
@@ -322,133 +182,91 @@ describe("birthday dashboard", () => {
       "unsupported",
       "Birthday notifications are not supported in this browser.",
     ],
-  ] as const)("keeps the dashboard usable when notifications are %s", async (state, message) => {
-    storeStudents(futureStudents);
+  ] as const)("keeps the dashboard usable when notifications are %s", (state, message) => {
     if (state === "denied") {
       installNotification("denied");
     }
     render(<BirthdayDashboard />);
 
-    expect(await screen.findByText(message)).toBeInTheDocument();
-    expect(screen.getByRole("searchbox", { name: "Search students or classes" })).toBeEnabled();
+    expect(screen.getByText(message)).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: "Search students" })).toBeEnabled();
   });
 
-  it("shows an accessible celebration that closes with its button", async () => {
-    storeStudents([todayStudent]);
+  it("shows an accessible celebration that closes with its focused button", () => {
     render(<BirthdayDashboard />);
 
-    const celebration = await screen.findByRole("dialog", {
+    const celebration = screen.getByRole("dialog", {
       name: "Today's birthday celebration",
     });
     expect(celebration).toHaveAttribute("aria-live", "polite");
-    expect(within(celebration).getByText("Maya Chen")).toBeInTheDocument();
-    expect(
-      within(celebration).getByText("Have a brilliant birthday!"),
-    ).toBeInTheDocument();
+    expect(celebration).toHaveAttribute("aria-modal", "true");
+    expect(within(celebration).getByText("Noella")).toBeInTheDocument();
+    const close = within(celebration).getByRole("button", { name: "Close celebration" });
+    expect(close).toHaveFocus();
 
-    fireEvent.click(
-      within(celebration).getByRole("button", { name: "Close celebration" }),
-    );
+    fireEvent.click(close);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("dismisses the celebration with Escape", async () => {
-    storeStudents([todayStudent]);
+  it("dismisses the celebration with Escape", () => {
     render(<BirthdayDashboard />);
 
-    const celebration = await screen.findByRole("dialog", {
-      name: "Today's birthday celebration",
-    });
-    fireEvent.keyDown(celebration, { key: "Escape" });
+    fireEvent.keyDown(
+      screen.getByRole("dialog", { name: "Today's birthday celebration" }),
+      { key: "Escape" },
+    );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("refreshes today's and upcoming birthdays across local midnight", async () => {
-    vi.setSystemTime(new Date(2026, 10, 8, 23, 59, 30));
-    storeStudents([todayStudent, futureStudents[1]]);
+    vi.setSystemTime(new Date(2026, 2, 4, 23, 59, 30));
     render(<BirthdayDashboard />);
 
-    const beforeMidnight = await screen.findByRole("region", {
-      name: "Today's birthdays",
-    });
-    expect(
-      within(beforeMidnight).getByRole("heading", { name: "Maya Chen" }),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Today's birthdays" })).not.toBeInTheDocument();
+    expect(screen.getByText(/No birthdays today/)).toBeInTheDocument();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(30_001);
     });
 
-    const afterMidnight = screen.getByRole("region", {
-      name: "Today's birthdays",
-    });
+    const today = screen.getByRole("region", { name: "Today's birthdays" });
     expect(
-      within(afterMidnight).getByRole("heading", { name: "Ari Singh" }),
-    ).toBeInTheDocument();
-    expect(
-      within(afterMidnight).queryByRole("heading", { name: "Maya Chen" }),
-    ).not.toBeInTheDocument();
-
-    const upcoming = screen.getByRole("region", {
-      name: "Upcoming birthdays",
-    });
-    expect(
-      within(upcoming).getByRole("heading", { name: "Maya Chen" }),
-    ).toBeInTheDocument();
-    expect(
-      within(upcoming).queryByRole("heading", { name: "Ari Singh" }),
-    ).not.toBeInTheDocument();
+      within(today).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
+    ).toEqual(["Erdem", "Anna"]);
+    const upcoming = screen.getByRole("region", { name: "Upcoming birthdays" });
+    expect(within(upcoming).queryByRole("heading", { name: "Erdem" })).not.toBeInTheDocument();
+    expect(within(upcoming).queryByRole("heading", { name: "Anna" })).not.toBeInTheDocument();
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(33);
   });
 
-  it("orders upcoming birthdays by the next celebration date", async () => {
-    storeStudents(futureStudents);
+  it("orders upcoming birthdays by next celebration date and keeps same-day source order", () => {
+    vi.setSystemTime(new Date(2026, 0, 30, 12));
     render(<BirthdayDashboard />);
 
-    const upcoming = await screen.findByRole("region", {
-      name: "Upcoming birthdays",
-    });
+    const upcoming = screen.getByRole("region", { name: "Upcoming birthdays" });
     expect(
       within(upcoming).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
-    ).toEqual(["Ari Singh", "Leo Park", "Zoe Bell"]);
+    ).toEqual([
+      "Sara", "Peter", "Omar", "Maria", "Akim", "Erdem", "Anna", "Duru", "Lee",
+      "Victory", "Defne", "Johans", "Celine", "Charbel", "Edgem", "Amanda", "Emaan",
+      "Hajar", "Liza", "Mohammed", "Eva", "Fren", "Eureolle", "Trawat", "Nidal",
+      "Maks", "Ali", "Saja", "Noella", "Kadhim", "Trinity", "Nabila", "Bill",
+      "Teacher", "Guerin",
+    ]);
   });
 
-  it("shows useful empty and no-results states", async () => {
-    const { unmount } = render(<BirthdayDashboard />);
-    expect(screen.getByRole("heading", { name: "No birthdays yet" })).toBeInTheDocument();
-    unmount();
-
-    storeStudents(futureStudents);
+  it("shows a useful no-results state and keeps today's celebration visible", () => {
     render(<BirthdayDashboard />);
     fireEvent.change(
-      await screen.findByRole("searchbox", {
-        name: "Search students or classes",
-      }),
-      {
-        target: { value: "not in this class" },
-      },
+      screen.getByRole("searchbox", { name: "Search students" }),
+      { target: { value: "not a student" } },
     );
 
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "No matches found" })).toBeInTheDocument();
-    });
-  });
-
-  it("says there are no upcoming birthdays when only today's records exist", async () => {
-    storeStudents([todayStudent]);
-    render(<BirthdayDashboard />);
-
-    const upcoming = await screen.findByRole("region", {
-      name: "Upcoming birthdays",
-    });
-    expect(
-      within(upcoming).getByRole("heading", {
-        name: "No upcoming birthdays",
-      }),
-    ).toBeInTheDocument();
-    expect(
-      within(upcoming).queryByRole("heading", { name: "No matches found" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "No matches found" })).toBeInTheDocument();
+    const today = screen.getByRole("region", { name: "Today's birthdays" });
+    expect(within(today).getByRole("heading", { name: "Noella" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "No upcoming birthdays" })).not.toBeInTheDocument();
   });
 });

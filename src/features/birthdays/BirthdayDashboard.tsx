@@ -4,12 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 
 import BirthdayCard from "./BirthdayCard";
 import Celebration from "./Celebration";
-import CsvImporter from "./CsvImporter";
+import { BUILT_IN_BIRTHDAYS } from "./builtInBirthdays";
 import {
   getTodaysBirthdays,
   sortByUpcomingBirthday,
 } from "./date";
-import { loadBirthdays, saveBirthdays } from "./storage";
 import {
   getNotificationState,
   notifyBirthdays,
@@ -20,28 +19,14 @@ import styles from "./BirthdayDashboard.module.css";
 import type { StudentBirthday } from "./types";
 
 export default function BirthdayDashboard() {
-  const [students, setStudents] = useState<StudentBirthday[]>([]);
+  const [students] = useState<StudentBirthday[]>(() => [...BUILT_IN_BIRTHDAYS]);
   const [search, setSearch] = useState("");
-  const [classFilter, setClassFilter] = useState("");
   const [now, setNow] = useState(() => new Date());
   const [notificationState, setNotificationState] =
     useState<NotificationState>(() => getNotificationState());
   const [dismissedCelebration, setDismissedCelebration] = useState<string | null>(
     null,
   );
-
-  useEffect(() => {
-    let cancelled = false;
-    queueMicrotask(() => {
-      if (!cancelled) {
-        setStudents(loadBirthdays());
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     const currentTime = new Date();
@@ -76,43 +61,21 @@ export default function BirthdayDashboard() {
       ),
     [now, students, todayIds],
   );
-  const classNames = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          students
-            .map((student) => student.className)
-            .filter((className): className is string => Boolean(className)),
-        ),
-      ).sort((left, right) => left.localeCompare(right)),
-    [students],
-  );
   const filteredUpcoming = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
 
-    return upcomingBirthdays.filter((student) => {
-      const matchesQuery =
+    return upcomingBirthdays.filter(
+      (student) =>
         query.length === 0 ||
-        student.name.toLocaleLowerCase().includes(query) ||
-        student.className?.toLocaleLowerCase().includes(query);
-      const matchesClass =
-        classFilter.length === 0 || student.className === classFilter;
-      return matchesQuery && matchesClass;
-    });
-  }, [classFilter, search, upcomingBirthdays]);
+        student.name.toLocaleLowerCase().includes(query),
+    );
+  }, [search, upcomingBirthdays]);
 
   useEffect(() => {
     if (notificationState === "granted") {
       notifyBirthdays(todaysBirthdays);
     }
   }, [notificationState, todaySignature, todaysBirthdays]);
-
-  function acceptImport(accepted: StudentBirthday[]) {
-    setStudents(accepted);
-    setSearch("");
-    setClassFilter("");
-    return saveBirthdays(accepted);
-  }
 
   async function enableNotifications() {
     const nextState = await requestBirthdayNotifications();
@@ -160,7 +123,6 @@ export default function BirthdayDashboard() {
           </span>
           Birthday desk
         </a>
-        <CsvImporter hasStudents={students.length > 0} onAccepted={acceptImport} />
       </header>
 
       <section className={styles.hero} aria-labelledby="page-title">
@@ -172,127 +134,92 @@ export default function BirthdayDashboard() {
         </p>
       </section>
 
-      {students.length === 0 ? (
-        <section className={styles.emptyState} aria-labelledby="empty-title">
-          <div className={styles.calendar} aria-hidden="true">
-            <span className={styles.calendarRings} />
-            <span className={styles.calendarHeart}>♥</span>
-          </div>
+      <div className={styles.dashboard}>
+        <aside className={styles.notificationPanel} aria-label="Birthday notifications">
           <div>
-            <p className={styles.emptyLabel}>Your calendar is ready</p>
-            <h2 id="empty-title">No birthdays yet</h2>
-            <p>
-              Import a CSV file to add your students and see who is
-              celebrating today and next.
-            </p>
+            <strong>Birthday reminders</strong>
+            <p aria-live="polite">{notificationMessage()}</p>
           </div>
-        </section>
-      ) : (
-        <div className={styles.dashboard}>
-          <aside className={styles.notificationPanel} aria-label="Birthday notifications">
-            <div>
-              <strong>Birthday reminders</strong>
-              <p aria-live="polite">{notificationMessage()}</p>
-            </div>
-            {notificationState === "default" || notificationState === "error" ? (
-              <button type="button" onClick={enableNotifications}>
-                {notificationState === "error"
-                  ? "Try birthday notifications again"
-                  : "Enable birthday notifications"}
-              </button>
-            ) : null}
-          </aside>
+          {notificationState === "default" || notificationState === "error" ? (
+            <button type="button" onClick={enableNotifications}>
+              {notificationState === "error"
+                ? "Try birthday notifications again"
+                : "Enable birthday notifications"}
+            </button>
+          ) : null}
+        </aside>
 
-          {todaysBirthdays.length > 0 ? (
-            <section
-              className={styles.todaySection}
-              aria-labelledby="today-title"
-              aria-label="Today's birthdays"
-            >
-              <div className={styles.sectionHeading}>
-                <p className={styles.eyebrow}>Make some noise</p>
-                <h2 id="today-title">Today&apos;s birthdays</h2>
-              </div>
-              <div className={styles.todayGrid}>
-                {todaysBirthdays.map((student) => (
-                  <BirthdayCard
-                    key={student.id}
-                    now={now}
-                    student={student}
-                    today
-                  />
-                ))}
-              </div>
-            </section>
-          ) : (
-            <p className={styles.quietToday}>No birthdays today — the next celebration is on its way.</p>
-          )}
-
+        {todaysBirthdays.length > 0 ? (
           <section
-            className={styles.upcomingSection}
-            aria-labelledby="upcoming-title"
-            aria-label="Upcoming birthdays"
+            className={styles.todaySection}
+            aria-labelledby="today-title"
+            aria-label="Today's birthdays"
           >
-            <div className={styles.upcomingHeading}>
-              <div className={styles.sectionHeading}>
-                <p className={styles.eyebrow}>Coming up next</p>
-                <h2 id="upcoming-title">Upcoming birthdays</h2>
-              </div>
-              <div className={styles.filters} role="search">
-                <label>
-                  <span>Search students or classes</span>
-                  <input
-                    type="search"
-                    value={search}
-                    placeholder="Try a name or class"
-                    onChange={(event) => setSearch(event.currentTarget.value)}
-                  />
-                </label>
-                <label>
-                  <span>Filter by class</span>
-                  <select
-                    value={classFilter}
-                    onChange={(event) => setClassFilter(event.currentTarget.value)}
-                  >
-                    <option value="">All classes</option>
-                    {classNames.map((className) => (
-                      <option key={className} value={className}>
-                        {className}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
+            <div className={styles.sectionHeading}>
+              <p className={styles.eyebrow}>Make some noise</p>
+              <h2 id="today-title">Today&apos;s birthdays</h2>
             </div>
-
-            {filteredUpcoming.length > 0 ? (
-              <div className={styles.cardGrid}>
-                {filteredUpcoming.map((student) => (
-                  <BirthdayCard key={student.id} now={now} student={student} />
-                ))}
-              </div>
-            ) : (
-              <div className={styles.noResults}>
-                {search.length === 0 && classFilter.length === 0 ? (
-                  <>
-                    <h3>No upcoming birthdays</h3>
-                    <p>Today&apos;s celebrations are the only ones on the calendar.</p>
-                  </>
-                ) : (
-                  <>
-                    <h3>No matches found</h3>
-                    <p>Try another name, class, or filter.</p>
-                  </>
-                )}
-              </div>
-            )}
+            <div className={styles.todayGrid}>
+              {todaysBirthdays.map((student) => (
+                <BirthdayCard
+                  key={student.id}
+                  now={now}
+                  student={student}
+                  today
+                />
+              ))}
+            </div>
           </section>
-        </div>
-      )}
+        ) : (
+          <p className={styles.quietToday}>No birthdays today — the next celebration is on its way.</p>
+        )}
 
-      <p className={styles.csvHint}>
-        CSV columns: <strong>name</strong>, <strong>birthDate</strong>
-      </p>
+        <section
+          className={styles.upcomingSection}
+          aria-labelledby="upcoming-title"
+          aria-label="Upcoming birthdays"
+        >
+          <div className={styles.upcomingHeading}>
+            <div className={styles.sectionHeading}>
+              <p className={styles.eyebrow}>Coming up next</p>
+              <h2 id="upcoming-title">Upcoming birthdays</h2>
+            </div>
+            <div className={styles.filters} role="search">
+              <label>
+                <span>Search students</span>
+                <input
+                  type="search"
+                  value={search}
+                  placeholder="Try a first name"
+                  onChange={(event) => setSearch(event.currentTarget.value)}
+                />
+              </label>
+            </div>
+          </div>
+
+          {filteredUpcoming.length > 0 ? (
+            <div className={styles.cardGrid}>
+              {filteredUpcoming.map((student) => (
+                <BirthdayCard key={student.id} now={now} student={student} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noResults}>
+              {search.length === 0 ? (
+                <>
+                  <h3>No upcoming birthdays</h3>
+                  <p>Today&apos;s celebrations are the only ones on the calendar.</p>
+                </>
+              ) : (
+                <>
+                  <h3>No matches found</h3>
+                  <p>Try another first name.</p>
+                </>
+              )}
+            </div>
+          )}
+        </section>
+      </div>
 
       {celebrationOpen && todaysBirthdays.length > 0 ? (
         <Celebration
