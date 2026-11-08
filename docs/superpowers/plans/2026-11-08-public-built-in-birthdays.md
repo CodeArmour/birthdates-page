@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Never commit the source file `C:\Users\omars\Downloads\group_1_birthdays.csv`.
+- Never commit the private source CSV.
 - Never publish surnames or real birth years.
 - The built-in dataset contains exactly 35 records with unique first names and `2000-MM-DD` internal dates.
 - The public page has no CSV upload, replace-data control, or CSV format hint.
