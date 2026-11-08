@@ -67,7 +67,7 @@ describe("birthday dashboard hydration", () => {
 
     await hydrateDashboard(markup, (container) => {
       expect(within(container).getByText(message)).toBeInTheDocument();
-      expect(within(container).getAllByRole("article")).toHaveLength(35);
+      expect(within(container).getAllByRole("article")).toHaveLength(40);
       expect(requestPermission).not.toHaveBeenCalled();
       const enable = within(container).queryByRole("button", { name: "Enable birthday notifications" });
       if (permission === "default") {
@@ -84,7 +84,7 @@ describe("birthday dashboard hydration", () => {
     expect(januaryMarkup).toBe(novemberMarkup);
     const initialContainer = document.createElement("div");
     initialContainer.innerHTML = januaryMarkup;
-    expect(within(initialContainer).getAllByRole("article")).toHaveLength(35);
+    expect(within(initialContainer).getAllByRole("article")).toHaveLength(40);
     expect(within(initialContainer).queryByRole("dialog")).not.toBeInTheDocument();
     expect(within(initialContainer).queryByText(/^In \d+ days?$/)).not.toBeInTheDocument();
 
