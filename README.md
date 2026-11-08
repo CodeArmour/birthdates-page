@@ -1,6 +1,6 @@
 # Student Birthdates
 
-A standalone Next.js page for importing student birthdays and highlighting upcoming celebrations.
+A standalone Next.js page showing built-in student birthdays and upcoming celebrations.
 
 ## Local setup
 
@@ -19,24 +19,20 @@ For day-to-day development, `npm run dev` starts the local Next.js server.
 Use `npm run build` to make a production build and `npm start` to run that
 build.
 
-## CSV format
+## Public birthday data and privacy
 
-Import a CSV file with `name` and `birthDate` columns. Dates must use the
-`YYYY-MM-DD` format. The `className` and `message` columns are optional.
+The public page immediately shows 35 built-in birthdays. The dataset contains
+unique first names and birthday month/day values only. Surnames and real birth
+years are excluded. Internal dates use the leap-safe placeholder year `2000`;
+this is not a student's birth year, and the page displays only month and day.
 
-```csv
-name,birthDate,className,message
-Mira Sunfield,2012-04-18,Class 7A,Have a fantastic birthday!
-```
+Visitors do not upload or replace data. The public dashboard does not load or
+save birthday records in browser `localStorage`, and it ignores previously
+imported records. The existing CSV parser and importer source remain available
+for possible future private use but are not exposed on the public page.
 
-A fictional sample file is available at
-[`public/examples/student-birthdays.csv`](public/examples/student-birthdays.csv).
-
-Importing a new valid CSV replaces the currently saved student list. The page
-stores imported birthdays only in this browser's `localStorage`; nothing is
-sent to a server. Anyone who uses the same shared browser profile can view the
-stored student data. To clear the list, clear this site's browser storage. To
-replace it, use **Replace data** and select another valid CSV.
+Notification deduplication may store the date of the last reminder in browser
+storage; it does not store birthday records.
 
 ## Birthday notifications
 
