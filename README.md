@@ -11,6 +11,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+For day-to-day development, `npm run dev` starts the local Next.js server.
+Use `npm run build` to make a production build and `npm start` to run that
+build.
+
 ## CSV format
 
 Import a CSV file with `name` and `birthDate` columns. Dates must use the
@@ -23,6 +27,18 @@ Mira Sunfield,2012-04-18,Class 7A,Have a fantastic birthday!
 
 A fictional sample file is available at
 [`public/examples/student-birthdays.csv`](public/examples/student-birthdays.csv).
+
+Importing a new valid CSV replaces the currently saved student list. The page
+stores imported birthdays only in this browser's `localStorage`; nothing is
+sent to a server. To clear the list, clear this site's browser storage. To
+replace it, use **Replace data** and select another valid CSV.
+
+## Birthday notifications
+
+The page asks for notification permission only when you press **Enable
+birthday notifications**. If permission is blocked, change it from your
+browser's site settings. Notifications are frontend-only: they are checked
+while this page is open and cannot arrive after the page or browser is closed.
 
 ## Checks
 

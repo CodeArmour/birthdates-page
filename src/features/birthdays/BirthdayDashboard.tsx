@@ -3,12 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 
 import BirthdayCard from "./BirthdayCard";
+import Celebration from "./Celebration";
 import CsvImporter from "./CsvImporter";
 import {
   getTodaysBirthdays,
   sortByUpcomingBirthday,
 } from "./date";
 import { loadBirthdays, saveBirthdays } from "./storage";
+import {
+  getNotificationState,
+  notifyBirthdays,
+  requestBirthdayNotifications,
+  type NotificationState,
+} from "./notifications";
 import styles from "./BirthdayDashboard.module.css";
 import type { StudentBirthday } from "./types";
 
@@ -17,6 +24,11 @@ export default function BirthdayDashboard() {
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [now, setNow] = useState(() => new Date());
+  const [notificationState, setNotificationState] =
+    useState<NotificationState>(() => getNotificationState());
+  const [dismissedCelebration, setDismissedCelebration] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -50,6 +62,12 @@ export default function BirthdayDashboard() {
     () => new Set(todaysBirthdays.map((student) => student.id)),
     [todaysBirthdays],
   );
+  const todaySignature = useMemo(
+    () => todaysBirthdays.map((student) => student.id).join("|"),
+    [todaysBirthdays],
+  );
+  const celebrationOpen =
+    todaysBirthdays.length > 0 && dismissedCelebration !== todaySignature;
   const upcomingBirthdays = useMemo(
     () =>
       sortByUpcomingBirthday(
@@ -83,11 +101,42 @@ export default function BirthdayDashboard() {
     });
   }, [classFilter, search, upcomingBirthdays]);
 
+  useEffect(() => {
+    if (notificationState === "granted") {
+      notifyBirthdays(todaysBirthdays);
+    }
+  }, [notificationState, todaySignature, todaysBirthdays]);
+
   function acceptImport(accepted: StudentBirthday[]) {
     setStudents(accepted);
     setSearch("");
     setClassFilter("");
     saveBirthdays(accepted);
+  }
+
+  async function enableNotifications() {
+    const nextState = await requestBirthdayNotifications();
+    setNotificationState(nextState);
+
+    if (nextState === "granted") {
+      notifyBirthdays(todaysBirthdays);
+    }
+  }
+
+  function notificationMessage() {
+    if (notificationState === "granted") {
+      return "Birthday notifications are enabled while this page is open.";
+    }
+
+    if (notificationState === "denied") {
+      return "Birthday notifications are blocked in your browser settings.";
+    }
+
+    if (notificationState === "unsupported") {
+      return "Birthday notifications are not supported in this browser.";
+    }
+
+    return "Get a reminder for today's birthdays while this page is open.";
   }
 
   return (
@@ -136,6 +185,18 @@ export default function BirthdayDashboard() {
         </section>
       ) : (
         <div className={styles.dashboard}>
+          <aside className={styles.notificationPanel} aria-label="Birthday notifications">
+            <div>
+              <strong>Birthday reminders</strong>
+              <p aria-live="polite">{notificationMessage()}</p>
+            </div>
+            {notificationState === "default" ? (
+              <button type="button" onClick={enableNotifications}>
+                Enable birthday notifications
+              </button>
+            ) : null}
+          </aside>
+
           {todaysBirthdays.length > 0 ? (
             <section
               className={styles.todaySection}
@@ -206,8 +267,17 @@ export default function BirthdayDashboard() {
               </div>
             ) : (
               <div className={styles.noResults}>
-                <h3>No matches found</h3>
-                <p>Try another name, class, or filter.</p>
+                {search.length === 0 && classFilter.length === 0 ? (
+                  <>
+                    <h3>No upcoming birthdays</h3>
+                    <p>Today&apos;s celebrations are the only ones on the calendar.</p>
+                  </>
+                ) : (
+                  <>
+                    <h3>No matches found</h3>
+                    <p>Try another name, class, or filter.</p>
+                  </>
+                )}
               </div>
             )}
           </section>
@@ -218,6 +288,13 @@ export default function BirthdayDashboard() {
         CSV columns: <strong>name</strong>, <strong>birthDate</strong>, className,
         message
       </p>
+
+      {celebrationOpen && todaysBirthdays.length > 0 ? (
+        <Celebration
+          students={todaysBirthdays}
+          onDismiss={() => setDismissedCelebration(todaySignature)}
+        />
+      ) : null}
     </main>
   );
 }

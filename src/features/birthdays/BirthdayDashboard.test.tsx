@@ -7,12 +7,38 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import BirthdayDashboard from "./BirthdayDashboard";
 import type { StudentBirthday } from "./types";
 
 const STORAGE_KEY = "student-birthdays:v1";
+
+function installNotification(
+  permission: NotificationPermission,
+  requestedPermission: NotificationPermission = permission,
+) {
+  const notifications: Array<{ body?: string; title: string }> = [];
+  const requestPermission = vi.fn().mockResolvedValue(requestedPermission);
+
+  class FakeNotification {
+    static permission = permission;
+    static requestPermission = requestPermission;
+
+    constructor(title: string, options?: NotificationOptions) {
+      notifications.push({ title, body: options?.body });
+    }
+  }
+
+  Object.defineProperty(window, "Notification", {
+    configurable: true,
+    value: FakeNotification,
+  });
+
+  return { notifications, requestPermission };
+}
 
 function storeStudents(students: StudentBirthday[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
@@ -64,6 +90,7 @@ const futureStudents: StudentBirthday[] = [
 describe("birthday dashboard", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    Reflect.deleteProperty(window, "Notification");
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date(2026, 10, 8, 12));
   });
@@ -104,7 +131,9 @@ describe("birthday dashboard", () => {
       expect(
         await screen.findByText("No students were imported. Rejected 1 row."),
       ).toBeInTheDocument();
-      expect(screen.getByText("Maya Chen")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Maya Chen" }),
+      ).toBeInTheDocument();
       expect(
         JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"),
       ).toEqual([todayStudent]);
@@ -180,6 +209,93 @@ describe("birthday dashboard", () => {
     expect(within(today).getByText("Today")).toBeInTheDocument();
   });
 
+  it("requests notification permission only after the enable action", async () => {
+    storeStudents([todayStudent]);
+    const { requestPermission } = installNotification("default", "granted");
+    render(<BirthdayDashboard />);
+
+    const enableButton = await screen.findByRole("button", {
+      name: "Enable birthday notifications",
+    });
+    expect(requestPermission).not.toHaveBeenCalled();
+
+    fireEvent.click(enableButton);
+
+    expect(requestPermission).toHaveBeenCalledTimes(1);
+    expect(
+      await screen.findByText(
+        "Birthday notifications are enabled while this page is open.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    [
+      "denied",
+      "Birthday notifications are blocked in your browser settings.",
+    ],
+    [
+      "unsupported",
+      "Birthday notifications are not supported in this browser.",
+    ],
+  ] as const)("keeps the dashboard usable when notifications are %s", async (state, message) => {
+    storeStudents(futureStudents);
+    if (state === "denied") {
+      installNotification("denied");
+    }
+    render(<BirthdayDashboard />);
+
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: "Search students or classes" })).toBeEnabled();
+  });
+
+  it("shows an accessible celebration that closes with its button", async () => {
+    storeStudents([todayStudent]);
+    render(<BirthdayDashboard />);
+
+    const celebration = await screen.findByRole("dialog", {
+      name: "Today's birthday celebration",
+    });
+    expect(celebration).toHaveAttribute("aria-live", "polite");
+    expect(within(celebration).getByText("Maya Chen")).toBeInTheDocument();
+    expect(
+      within(celebration).getByText("Have a brilliant birthday!"),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      within(celebration).getByRole("button", { name: "Close celebration" }),
+    );
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("dismisses the celebration with Escape", async () => {
+    storeStudents([todayStudent]);
+    render(<BirthdayDashboard />);
+
+    const celebration = await screen.findByRole("dialog", {
+      name: "Today's birthday celebration",
+    });
+    fireEvent.keyDown(celebration, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("removes celebration motion when reduced motion is requested", () => {
+    const styles = readFileSync(
+      resolve(
+        process.cwd(),
+        "src/features/birthdays/Celebration.module.css",
+      ),
+      "utf8",
+    );
+    const reducedMotionRule = styles.match(
+      /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*)\}\s*$/,
+    )?.[1];
+
+    expect(reducedMotionRule).toMatch(/animation:\s*none/);
+  });
+
   it("refreshes today's and upcoming birthdays across local midnight", async () => {
     vi.setSystemTime(new Date(2026, 10, 8, 23, 59, 30));
     storeStudents([todayStudent, futureStudents[1]]);
@@ -248,5 +364,22 @@ describe("birthday dashboard", () => {
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "No matches found" })).toBeInTheDocument();
     });
+  });
+
+  it("says there are no upcoming birthdays when only today's records exist", async () => {
+    storeStudents([todayStudent]);
+    render(<BirthdayDashboard />);
+
+    const upcoming = await screen.findByRole("region", {
+      name: "Upcoming birthdays",
+    });
+    expect(
+      within(upcoming).getByRole("heading", {
+        name: "No upcoming birthdays",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(upcoming).queryByRole("heading", { name: "No matches found" }),
+    ).not.toBeInTheDocument();
   });
 });

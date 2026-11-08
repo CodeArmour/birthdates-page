@@ -253,6 +253,42 @@
   gap: 3rem;
 }
 
+.notificationPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  border: 2px solid var(--color-navy);
+  border-radius: var(--radius-medium);
+  padding: 1rem 1.2rem;
+  background: var(--color-sky);
+  box-shadow: 5px 5px 0 var(--color-navy);
+}
+
+.notificationPanel strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+}
+
+.notificationPanel p {
+  margin: 0.3rem 0 0;
+  color: var(--color-navy);
+  line-height: 1.45;
+}
+
+.notificationPanel button {
+  flex: none;
+  min-height: 2.75rem;
+  border: 2px solid var(--color-navy);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  background: var(--color-gold);
+  color: var(--color-navy);
+  cursor: pointer;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 var(--color-navy);
+}
+
 .todaySection {
   border: 2px solid var(--color-navy);
   border-radius: var(--radius-large);
@@ -496,5 +532,14 @@
 
   .filters {
     grid-template-columns: 1fr;
+  }
+
+  .notificationPanel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .notificationPanel button {
+    width: 100%;
   }
 }
