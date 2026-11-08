@@ -54,10 +54,10 @@ describe("birthday dashboard", () => {
     vi.useRealTimers();
   });
 
-  it("immediately renders all 35 built-in birthdays without an upload", () => {
+  it("immediately renders all 40 built-in birthdays without an upload", () => {
     render(<BirthdayDashboard />);
 
-    expect(screen.getAllByRole("article")).toHaveLength(35);
+    expect(screen.getAllByRole("article")).toHaveLength(40);
     expect(screen.getByRole("heading", { name: "Noella" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Omar" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "No birthdays yet" })).not.toBeInTheDocument();
@@ -84,7 +84,7 @@ describe("birthday dashboard", () => {
     render(<BirthdayDashboard />);
 
     await act(async () => {});
-    expect(screen.getAllByRole("article")).toHaveLength(35);
+    expect(screen.getAllByRole("article")).toHaveLength(40);
     expect(screen.queryByText("Legacy")).not.toBeInTheDocument();
     expect(getItem).not.toHaveBeenCalledWith(STORAGE_KEY);
     expect(getItem.mock.calls).toEqual([
@@ -112,7 +112,7 @@ describe("birthday dashboard", () => {
     expect(within(upcoming).queryByRole("heading", { name: "Kadhim" })).not.toBeInTheDocument();
 
     fireEvent.change(search, { target: { value: "" } });
-    expect(within(upcoming).getAllByRole("article")).toHaveLength(34);
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(39);
   });
 
   it("highlights today's built-in birthdays without displaying birth years", async () => {
@@ -240,7 +240,7 @@ describe("birthday dashboard", () => {
     const upcoming = screen.getByRole("region", { name: "Upcoming birthdays" });
     expect(within(upcoming).queryByRole("heading", { name: "Erdem" })).not.toBeInTheDocument();
     expect(within(upcoming).queryByRole("heading", { name: "Anna" })).not.toBeInTheDocument();
-    expect(within(upcoming).getAllByRole("article")).toHaveLength(33);
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(38);
   });
 
   it("orders upcoming birthdays by next celebration date and keeps same-day source order", async () => {
@@ -252,11 +252,11 @@ describe("birthday dashboard", () => {
     expect(
       within(upcoming).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
     ).toEqual([
-      "Sara", "Peter", "Omar", "Maria", "Akim", "Erdem", "Anna", "Duru", "Lee",
+      "Sara", "Peter", "Birgit", "Lieve", "Omar", "Maria", "Akim", "Erdem", "Anna", "Duru", "Lee",
       "Victory", "Defne", "Johans", "Celine", "Charbel", "Edgem", "Amanda", "Emaan",
       "Hajar", "Liza", "Mohammed", "Eva", "Fren", "Eureolle", "Trawat", "Nidal",
-      "Maks", "Ali", "Saja", "Noella", "Kadhim", "Trinity", "Nabila", "Bill",
-      "Teacher", "Guerin",
+      "Maks", "Els", "Ali", "Saja", "Noella", "Kadhim", "Trinity", "Ginny", "Nabila", "Bill",
+      "Teacher", "Eva", "Guerin",
     ]);
   });
 

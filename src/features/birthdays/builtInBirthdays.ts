@@ -37,4 +37,9 @@ export const BUILT_IN_BIRTHDAYS: readonly StudentBirthday[] = [
   { id: "builtin-33", name: "Nidal", birthDate: "2000-09-06" },
   { id: "builtin-34", name: "Saja", birthDate: "2000-10-30" },
   { id: "builtin-35", name: "Noella", birthDate: "2000-11-05" },
+  { id: "builtin-36", name: "Els", birthDate: "2000-09-30" },
+  { id: "builtin-37", name: "Ginny", birthDate: "2000-01-07" },
+  { id: "builtin-38", name: "Eva", birthDate: "2000-01-19" },
+  { id: "builtin-39", name: "Birgit", birthDate: "2000-02-09" },
+  { id: "builtin-40", name: "Lieve", birthDate: "2000-02-12" },
 ];

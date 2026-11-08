@@ -21,8 +21,9 @@ build.
 
 ## Public birthday data and privacy
 
-The public page immediately shows 35 built-in birthdays. The dataset contains
-unique first names and birthday month/day values only. Surnames and real birth
+The public page immediately shows 40 first-name birthday records. The dataset
+contains first names and birthday month/day values only. First names may repeat;
+each record has a unique ID that remains internal. Surnames and real birth
 years are excluded. Internal dates use the leap-safe placeholder year `2000`;
 this is not a student's birth year, and the page displays only month and day.
 
