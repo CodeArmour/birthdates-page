@@ -21,14 +21,31 @@ import type { StudentBirthday } from "./types";
 export default function BirthdayDashboard() {
   const [students] = useState<StudentBirthday[]>(() => [...BUILT_IN_BIRTHDAYS]);
   const [search, setSearch] = useState("");
-  const [now, setNow] = useState(() => new Date());
+  // Match server HTML before reading the visitor's date and browser permissions.
+  const [now, setNow] = useState<Date | null>(null);
   const [notificationState, setNotificationState] =
-    useState<NotificationState>(() => getNotificationState());
+    useState<NotificationState | null>(null);
   const [dismissedCelebration, setDismissedCelebration] = useState<string | null>(
     null,
   );
 
   useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setNow(new Date());
+        setNotificationState(getNotificationState());
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!now) {
+      return;
+    }
     const currentTime = new Date();
     const nextMidnight = new Date(currentTime);
     nextMidnight.setHours(24, 0, 0, 0);
@@ -40,7 +57,7 @@ export default function BirthdayDashboard() {
   }, [now]);
 
   const todaysBirthdays = useMemo(
-    () => getTodaysBirthdays(students, now),
+    () => now ? getTodaysBirthdays(students, now) : [],
     [now, students],
   );
   const todayIds = useMemo(
@@ -55,10 +72,10 @@ export default function BirthdayDashboard() {
     todaysBirthdays.length > 0 && dismissedCelebration !== todaySignature;
   const upcomingBirthdays = useMemo(
     () =>
-      sortByUpcomingBirthday(
+      now ? sortByUpcomingBirthday(
         students.filter((student) => !todayIds.has(student.id)),
         now,
-      ),
+      ) : students,
     [now, students, todayIds],
   );
   const filteredUpcoming = useMemo(() => {
@@ -87,6 +104,10 @@ export default function BirthdayDashboard() {
   }
 
   function notificationMessage() {
+    if (notificationState === null) {
+      return "Checking birthday reminders...";
+    }
+
     if (notificationState === "granted") {
       return "Birthday notifications are enabled while this page is open.";
     }
@@ -170,9 +191,9 @@ export default function BirthdayDashboard() {
               ))}
             </div>
           </section>
-        ) : (
+        ) : now ? (
           <p className={styles.quietToday}>No birthdays today — the next celebration is on its way.</p>
-        )}
+        ) : null}
 
         <section
           className={styles.upcomingSection}

@@ -3,7 +3,7 @@ import styles from "./BirthdayDashboard.module.css";
 import type { StudentBirthday } from "./types";
 
 interface BirthdayCardProps {
-  now: Date;
+  now: Date | null;
   student: StudentBirthday;
   today?: boolean;
 }
@@ -21,17 +21,19 @@ export default function BirthdayCard({
   student,
   today = false,
 }: BirthdayCardProps) {
-  const daysUntil = daysUntilBirthday(student, now);
+  const daysUntil = now ? daysUntilBirthday(student, now) : null;
   const countdown =
-    daysUntil === 0
-      ? "Today"
-      : `In ${daysUntil} ${daysUntil === 1 ? "day" : "days"}`;
+    daysUntil === null
+      ? null
+      : daysUntil === 0
+        ? "Today"
+        : `In ${daysUntil} ${daysUntil === 1 ? "day" : "days"}`;
 
   return (
     <article className={`${styles.card} ${today ? styles.todayCard : ""}`}>
       <div className={styles.cardTopline}>
         <time dateTime={student.birthDate}>{displayBirthday(student.birthDate)}</time>
-        <span className={styles.countdown}>{countdown}</span>
+        {countdown ? <span className={styles.countdown}>{countdown}</span> : null}
       </div>
       <h3>{student.name}</h3>
       {student.className ? (

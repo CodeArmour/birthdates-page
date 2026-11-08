@@ -4,6 +4,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -99,8 +100,9 @@ describe("birthday dashboard", () => {
     ]);
   });
 
-  it("searches upcoming birthdays by first name regardless of case or surrounding spaces", () => {
+  it("searches upcoming birthdays by first name regardless of case or surrounding spaces", async () => {
     render(<BirthdayDashboard />);
+    await screen.findByRole("region", { name: "Today's birthdays" });
 
     const search = screen.getByRole("searchbox", { name: "Search students" });
     fireEvent.change(search, { target: { value: "  oMaR  " } });
@@ -113,10 +115,10 @@ describe("birthday dashboard", () => {
     expect(within(upcoming).getAllByRole("article")).toHaveLength(34);
   });
 
-  it("highlights today's built-in birthdays without displaying birth years", () => {
+  it("highlights today's built-in birthdays without displaying birth years", async () => {
     const { container } = render(<BirthdayDashboard />);
 
-    const today = screen.getByRole("region", { name: "Today's birthdays" });
+    const today = await screen.findByRole("region", { name: "Today's birthdays" });
     expect(within(today).getByRole("heading", { name: "Noella" })).toBeInTheDocument();
     expect(within(today).getByText("Today")).toBeInTheDocument();
     expect(within(today).getByText("November 5")).toBeInTheDocument();
@@ -130,7 +132,7 @@ describe("birthday dashboard", () => {
     const { requestPermission } = installNotification("default", "granted");
     render(<BirthdayDashboard />);
 
-    const enableButton = screen.getByRole("button", {
+    const enableButton = await screen.findByRole("button", {
       name: "Enable birthday notifications",
     });
     expect(requestPermission).not.toHaveBeenCalled();
@@ -154,7 +156,7 @@ describe("birthday dashboard", () => {
     render(<BirthdayDashboard />);
 
     fireEvent.click(
-      screen.getByRole("button", {
+      await screen.findByRole("button", {
         name: "Enable birthday notifications",
       }),
     );
@@ -182,38 +184,38 @@ describe("birthday dashboard", () => {
       "unsupported",
       "Birthday notifications are not supported in this browser.",
     ],
-  ] as const)("keeps the dashboard usable when notifications are %s", (state, message) => {
+  ] as const)("keeps the dashboard usable when notifications are %s", async (state, message) => {
     if (state === "denied") {
       installNotification("denied");
     }
     render(<BirthdayDashboard />);
 
-    expect(screen.getByText(message)).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.getByRole("searchbox", { name: "Search students" })).toBeEnabled();
   });
 
-  it("shows an accessible celebration that closes with its focused button", () => {
+  it("shows an accessible celebration that closes with its focused button", async () => {
     render(<BirthdayDashboard />);
 
-    const celebration = screen.getByRole("dialog", {
+    const celebration = await screen.findByRole("dialog", {
       name: "Today's birthday celebration",
     });
     expect(celebration).toHaveAttribute("aria-live", "polite");
     expect(celebration).toHaveAttribute("aria-modal", "true");
     expect(within(celebration).getByText("Noella")).toBeInTheDocument();
     const close = within(celebration).getByRole("button", { name: "Close celebration" });
-    expect(close).toHaveFocus();
+    await waitFor(() => expect(close).toHaveFocus());
 
     fireEvent.click(close);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("dismisses the celebration with Escape", () => {
+  it("dismisses the celebration with Escape", async () => {
     render(<BirthdayDashboard />);
 
     fireEvent.keyDown(
-      screen.getByRole("dialog", { name: "Today's birthday celebration" }),
+      await screen.findByRole("dialog", { name: "Today's birthday celebration" }),
       { key: "Escape" },
     );
 
@@ -225,7 +227,7 @@ describe("birthday dashboard", () => {
     render(<BirthdayDashboard />);
 
     expect(screen.queryByRole("region", { name: "Today's birthdays" })).not.toBeInTheDocument();
-    expect(screen.getByText(/No birthdays today/)).toBeInTheDocument();
+    expect(await screen.findByText(/No birthdays today/)).toBeInTheDocument();
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(30_001);
@@ -241,9 +243,10 @@ describe("birthday dashboard", () => {
     expect(within(upcoming).getAllByRole("article")).toHaveLength(33);
   });
 
-  it("orders upcoming birthdays by next celebration date and keeps same-day source order", () => {
+  it("orders upcoming birthdays by next celebration date and keeps same-day source order", async () => {
     vi.setSystemTime(new Date(2026, 0, 30, 12));
     render(<BirthdayDashboard />);
+    await act(async () => {});
 
     const upcoming = screen.getByRole("region", { name: "Upcoming birthdays" });
     expect(
@@ -257,8 +260,9 @@ describe("birthday dashboard", () => {
     ]);
   });
 
-  it("shows a useful no-results state and keeps today's celebration visible", () => {
+  it("shows a useful no-results state and keeps today's celebration visible", async () => {
     render(<BirthdayDashboard />);
+    await screen.findByRole("region", { name: "Today's birthdays" });
     fireEvent.change(
       screen.getByRole("searchbox", { name: "Search students" }),
       { target: { value: "not a student" } },
