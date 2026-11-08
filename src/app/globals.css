@@ -1,0 +1,80 @@
+:root {
+  --color-cream: #fff8e9;
+  --color-paper: #fffdf7;
+  --color-navy: #172a46;
+  --color-coral: #ef6a5b;
+  --color-coral-dark: #c9433d;
+  --color-gold: #f4bf4f;
+  --color-sky: #b8dde0;
+  --color-muted: #5c6677;
+  --color-line: #dfd4bd;
+  --shadow-paper: 0 18px 45px rgb(23 42 70 / 12%);
+  --radius-large: 2rem;
+  --radius-medium: 1.25rem;
+  --focus-ring: 0 0 0 4px rgb(244 191 79 / 55%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-cream);
+  color: var(--color-navy);
+  font-family: "Trebuchet MS", "Avenir Next", Avenir, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-navy);
+  outline-offset: 4px;
+  box-shadow: var(--focus-ring);
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 10;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-navy);
+  color: white;
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
