@@ -102,19 +102,22 @@ describe("birthday dashboard", () => {
     vi.useRealTimers();
   });
 
-  it("replaces stored birthdays after importing a CSV with valid rows", async () => {
+  it("replaces stored birthdays after importing a two-column CSV and shows its format", async () => {
     storeStudents([todayStudent]);
     render(<BirthdayDashboard />);
 
     uploadCsv(
-      "name,birthDate,className,message\nNoah Williams,2013-11-14,Class 7C,Enjoy your day!",
+      "name,birthDate\nNoah Williams,2013-11-14",
     );
 
     expect(await screen.findByText("Imported 1 student. Rejected 0 rows.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Noah Williams" })).toBeInTheDocument();
+    expect(screen.getByText(/CSV columns:/)).toHaveTextContent(
+      /^CSV columns: name, birthDate$/,
+    );
     expect(screen.queryByText("Maya Chen")).not.toBeInTheDocument();
     expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]")).toEqual([
-      expect.objectContaining({ name: "Noah Williams", className: "Class 7C" }),
+      expect.objectContaining({ name: "Noah Williams", birthDate: "2013-11-14" }),
     ]);
   });
 

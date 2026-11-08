@@ -291,8 +291,7 @@ export default function BirthdayDashboard() {
       )}
 
       <p className={styles.csvHint}>
-        CSV columns: <strong>name</strong>, <strong>birthDate</strong>, className,
-        message
+        CSV columns: <strong>name</strong>, <strong>birthDate</strong>
       </p>
 
       {celebrationOpen && todaysBirthdays.length > 0 ? (

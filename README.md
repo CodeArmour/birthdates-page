@@ -22,11 +22,11 @@ build.
 ## CSV format
 
 Import a CSV file with `name` and `birthDate` columns. Dates must use the
-`YYYY-MM-DD` format. The `className` and `message` columns are optional.
+`YYYY-MM-DD` format.
 
 ```csv
-name,birthDate,className,message
-Mira Sunfield,2012-04-18,Class 7A,Have a fantastic birthday!
+name,birthDate
+Mira Sunfield,2012-04-18
 ```
 
 A fictional sample file is available at
