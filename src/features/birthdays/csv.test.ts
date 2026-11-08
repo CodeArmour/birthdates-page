@@ -55,6 +55,30 @@ describe("parseStudentCsv", () => {
     expect(result.rejected).toEqual([]);
   });
 
+  it("rejects an unterminated quoted field with its row number", () => {
+    expect(
+      parseStudentCsv(
+        'name,birthDate,className,message\n"River Quinn,2013-01-05,Class 6B,Hello',
+      ),
+    ).toEqual({
+      accepted: [],
+      rejected: [{ row: 2, message: "Quoted field is not closed." }],
+    });
+  });
+
+  it("rejects non-whitespace text after a closing quote", () => {
+    expect(
+      parseStudentCsv(
+        'name,birthDate,className,message\n"River Quinn"oops,2013-01-05,Class 6B,Hello',
+      ),
+    ).toEqual({
+      accepted: [],
+      rejected: [
+        { row: 2, message: "Unexpected text after a closing quote." },
+      ],
+    });
+  });
+
   it("rejects an empty file", () => {
     expect(parseStudentCsv("  \r\n")).toEqual({
       accepted: [],

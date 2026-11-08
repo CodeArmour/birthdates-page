@@ -23,9 +23,12 @@ interface InstalledNotification {
 function installNotification(
   permission: NotificationPermission,
   requestedPermission: NotificationPermission = permission,
+  requestError?: Error,
 ): InstalledNotification {
   const notifications: Array<{ body?: string; title: string }> = [];
-  const requestPermission = vi.fn().mockResolvedValue(requestedPermission);
+  const requestPermission = requestError
+    ? vi.fn().mockRejectedValue(requestError)
+    : vi.fn().mockResolvedValue(requestedPermission);
 
   class FakeNotification {
     static permission = permission;
@@ -79,6 +82,18 @@ describe("birthday notifications", () => {
     expect(requestPermission).not.toHaveBeenCalled();
 
     await expect(requestBirthdayNotifications()).resolves.toBe("granted");
+    expect(requestPermission).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns an error state when the permission request rejects", async () => {
+    const { requestPermission } = installNotification(
+      "default",
+      "default",
+      new Error("Permission prompt failed"),
+    );
+    const { requestBirthdayNotifications } = await import("./notifications");
+
+    await expect(requestBirthdayNotifications()).resolves.toBe("error");
     expect(requestPermission).toHaveBeenCalledTimes(1);
   });
 

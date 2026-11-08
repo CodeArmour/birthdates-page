@@ -3,12 +3,13 @@
 import { useRef, useState } from "react";
 
 import { parseStudentCsv } from "./csv";
+import type { SaveBirthdaysResult } from "./storage";
 import styles from "./BirthdayDashboard.module.css";
 import type { CsvImportResult, StudentBirthday } from "./types";
 
 interface CsvImporterProps {
   hasStudents: boolean;
-  onAccepted: (students: StudentBirthday[]) => void;
+  onAccepted: (students: StudentBirthday[]) => SaveBirthdaysResult;
 }
 
 function plural(count: number, singular: string, pluralForm: string) {
@@ -21,6 +22,7 @@ export default function CsvImporter({
 }: CsvImporterProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [result, setResult] = useState<CsvImportResult | null>(null);
+  const [persistenceFailed, setPersistenceFailed] = useState(false);
 
   async function handleFile(file: File | undefined) {
     if (!file) {
@@ -39,7 +41,7 @@ export default function CsvImporter({
 
     setResult(nextResult);
     if (nextResult.accepted.length > 0) {
-      onAccepted(nextResult.accepted);
+      setPersistenceFailed(!onAccepted(nextResult.accepted).saved);
     }
   }
 
@@ -77,6 +79,12 @@ export default function CsvImporter({
       {result && summary ? (
         <div className={styles.importFeedback} role="status" aria-live="polite">
           <p>{summary}</p>
+          {persistenceFailed ? (
+            <p>
+              Your imported data is available for this session, but it could
+              not be saved in this browser.
+            </p>
+          ) : null}
           {result.rejected.length > 0 ? (
             <details>
               <summary>Review rejected rows</summary>

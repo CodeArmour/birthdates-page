@@ -6,31 +6,72 @@ import type {
 
 const REQUIRED_HEADERS = ["name", "birthDate"] as const;
 
-function readCsvRows(csvText: string): string[][] {
+type CsvRowsResult =
+  | { rows: string[][]; syntaxError?: never }
+  | { rows?: never; syntaxError: CsvRowError };
+
+function readCsvRows(csvText: string): CsvRowsResult {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
-  let inQuotes = false;
+  let state: "unquoted" | "quoted" | "afterQuote" = "unquoted";
+  let rowNumber = 1;
+  let quotedFieldRow = 1;
 
   for (let index = 0; index < csvText.length; index += 1) {
     const character = csvText[index];
 
-    if (inQuotes) {
+    if (state === "quoted") {
       if (character === '"') {
         if (csvText[index + 1] === '"') {
           field += '"';
           index += 1;
         } else {
-          inQuotes = false;
+          state = "afterQuote";
         }
       } else {
         field += character;
+        if (character === "\n" || character === "\r") {
+          rowNumber += 1;
+          if (character === "\r" && csvText[index + 1] === "\n") {
+            field += "\n";
+            index += 1;
+          }
+        }
+      }
+      continue;
+    }
+
+    if (state === "afterQuote") {
+      if (character === ",") {
+        row.push(field);
+        field = "";
+        state = "unquoted";
+      } else if (character === "\n" || character === "\r") {
+        row.push(field);
+        rows.push(row);
+        row = [];
+        field = "";
+        state = "unquoted";
+        rowNumber += 1;
+
+        if (character === "\r" && csvText[index + 1] === "\n") {
+          index += 1;
+        }
+      } else if (character !== " " && character !== "\t") {
+        return {
+          syntaxError: {
+            row: rowNumber,
+            message: "Unexpected text after a closing quote.",
+          },
+        };
       }
       continue;
     }
 
     if (character === '"' && field.length === 0) {
-      inQuotes = true;
+      state = "quoted";
+      quotedFieldRow = rowNumber;
     } else if (character === ",") {
       row.push(field);
       field = "";
@@ -39,6 +80,7 @@ function readCsvRows(csvText: string): string[][] {
       rows.push(row);
       row = [];
       field = "";
+      rowNumber += 1;
 
       if (character === "\r" && csvText[index + 1] === "\n") {
         index += 1;
@@ -48,12 +90,21 @@ function readCsvRows(csvText: string): string[][] {
     }
   }
 
+  if (state === "quoted") {
+    return {
+      syntaxError: {
+        row: quotedFieldRow,
+        message: "Quoted field is not closed.",
+      },
+    };
+  }
+
   if (field.length > 0 || row.length > 0) {
     row.push(field);
     rows.push(row);
   }
 
-  return rows;
+  return { rows };
 }
 
 function normalizeName(name: string): string {
@@ -112,7 +163,12 @@ export function parseStudentCsv(csvText: string): CsvImportResult {
     };
   }
 
-  const rows = readCsvRows(csvText);
+  const rowsResult = readCsvRows(csvText);
+  if (rowsResult.syntaxError) {
+    return { accepted: [], rejected: [rowsResult.syntaxError] };
+  }
+
+  const rows = rowsResult.rows;
   const headers = rows[0].map((header, index) =>
     (index === 0 ? header.replace(/^\uFEFF/, "") : header).trim(),
   );

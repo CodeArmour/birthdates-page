@@ -6,8 +6,11 @@ const globalStyles = readFileSync(
   resolve(process.cwd(), "src/app/globals.css"),
   "utf8",
 );
-const pageStyles = readFileSync(
-  resolve(process.cwd(), "src/app/page.module.css"),
+const dashboardStyles = readFileSync(
+  resolve(
+    process.cwd(),
+    "src/features/birthdays/BirthdayDashboard.module.css",
+  ),
   "utf8",
 );
 
@@ -90,7 +93,7 @@ function contrastRatio(firstColor: string, secondColor: string) {
 
 describe("import action contrast", () => {
   it("keeps the primary import action at WCAG AA contrast", () => {
-    const importButtonRule = getRule(pageStyles, ".importButton");
+    const importButtonRule = getRule(dashboardStyles, ".importButton");
     const foreground = resolveColor(getDeclaration(importButtonRule, "color"));
     const background = resolveColor(
       getDeclaration(importButtonRule, "background"),

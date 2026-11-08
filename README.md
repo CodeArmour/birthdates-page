@@ -4,7 +4,11 @@ A standalone Next.js page for importing student birthdays and highlighting upcom
 
 ## Local setup
 
+Use Node.js `^22.22.2`, `^24.15.0`, or `>=26.0.0`. The included `.nvmrc`
+selects Node.js 24.15.0 when using a compatible Node version manager.
+
 ```bash
+nvm use
 npm install
 npm run dev
 ```
@@ -30,7 +34,8 @@ A fictional sample file is available at
 
 Importing a new valid CSV replaces the currently saved student list. The page
 stores imported birthdays only in this browser's `localStorage`; nothing is
-sent to a server. To clear the list, clear this site's browser storage. To
+sent to a server. Anyone who uses the same shared browser profile can view the
+stored student data. To clear the list, clear this site's browser storage. To
 replace it, use **Replace data** and select another valid CSV.
 
 ## Birthday notifications

@@ -2,6 +2,8 @@ import type { StudentBirthday } from "./types";
 
 const STORAGE_KEY = "student-birthdays:v1";
 
+export type SaveBirthdaysResult = { saved: true } | { saved: false };
+
 function isValidBirthDate(value: unknown): value is string {
   if (typeof value !== "string") {
     return false;
@@ -83,14 +85,17 @@ export function loadBirthdays(): StudentBirthday[] {
   }
 }
 
-export function saveBirthdays(students: StudentBirthday[]): void {
+export function saveBirthdays(
+  students: StudentBirthday[],
+): SaveBirthdaysResult {
   try {
     if (typeof window === "undefined") {
-      return;
+      return { saved: false };
     }
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+    return { saved: true };
   } catch {
-    // Storage can be disabled, unavailable, or full. Persistence is optional.
+    return { saved: false };
   }
 }

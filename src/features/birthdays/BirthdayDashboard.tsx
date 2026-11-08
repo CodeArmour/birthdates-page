@@ -111,7 +111,7 @@ export default function BirthdayDashboard() {
     setStudents(accepted);
     setSearch("");
     setClassFilter("");
-    saveBirthdays(accepted);
+    return saveBirthdays(accepted);
   }
 
   async function enableNotifications() {
@@ -134,6 +134,10 @@ export default function BirthdayDashboard() {
 
     if (notificationState === "unsupported") {
       return "Birthday notifications are not supported in this browser.";
+    }
+
+    if (notificationState === "error") {
+      return "We couldn't enable birthday notifications. Try again or check your browser settings.";
     }
 
     return "Get a reminder for today's birthdays while this page is open.";
@@ -190,9 +194,11 @@ export default function BirthdayDashboard() {
               <strong>Birthday reminders</strong>
               <p aria-live="polite">{notificationMessage()}</p>
             </div>
-            {notificationState === "default" ? (
+            {notificationState === "default" || notificationState === "error" ? (
               <button type="button" onClick={enableNotifications}>
-                Enable birthday notifications
+                {notificationState === "error"
+                  ? "Try birthday notifications again"
+                  : "Enable birthday notifications"}
               </button>
             ) : null}
           </aside>

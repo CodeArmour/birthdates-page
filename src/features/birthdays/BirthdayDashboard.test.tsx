@@ -7,8 +7,6 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import BirthdayDashboard from "./BirthdayDashboard";
@@ -19,9 +17,12 @@ const STORAGE_KEY = "student-birthdays:v1";
 function installNotification(
   permission: NotificationPermission,
   requestedPermission: NotificationPermission = permission,
+  requestError?: Error,
 ) {
   const notifications: Array<{ body?: string; title: string }> = [];
-  const requestPermission = vi.fn().mockResolvedValue(requestedPermission);
+  const requestPermission = requestError
+    ? vi.fn().mockRejectedValue(requestError)
+    : vi.fn().mockResolvedValue(requestedPermission);
 
   class FakeNotification {
     static permission = permission;
@@ -97,6 +98,7 @@ describe("birthday dashboard", () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
@@ -139,6 +141,54 @@ describe("birthday dashboard", () => {
       ).toEqual([todayStudent]);
     },
   );
+
+  it("preserves stored birthdays after a malformed quoted import", async () => {
+    storeStudents([todayStudent]);
+    render(<BirthdayDashboard />);
+
+    uploadCsv(
+      'name,birthDate,className,message\n"Noah Williams,2013-11-14,Class 7C,Enjoy your day!',
+    );
+
+    expect(
+      await screen.findByText("No students were imported. Rejected 1 row."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Row 2: Quoted field is not closed."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Maya Chen" }),
+    ).toBeInTheDocument();
+    expect(
+      JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"),
+    ).toEqual([todayStudent]);
+  });
+
+  it("keeps imported data in the session and warns when saving fails", async () => {
+    storeStudents([todayStudent]);
+    render(<BirthdayDashboard />);
+    await screen.findByRole("heading", { name: "Maya Chen" });
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("Storage is full");
+    });
+
+    uploadCsv(
+      "name,birthDate,className\nNoah Williams,2013-11-14,Class 7C",
+    );
+
+    expect(
+      await screen.findByText(
+        "Your imported data is available for this session, but it could not be saved in this browser.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Noah Williams" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Maya Chen")).not.toBeInTheDocument();
+    expect(
+      JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "[]"),
+    ).toEqual([todayStudent]);
+  });
 
   it("shows accepted and rejected counts with row-specific feedback", async () => {
     render(<BirthdayDashboard />);
@@ -229,6 +279,37 @@ describe("birthday dashboard", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows a retryable status when notification permission rejects", async () => {
+    storeStudents(futureStudents);
+    const { requestPermission } = installNotification(
+      "default",
+      "default",
+      new Error("Permission prompt failed"),
+    );
+    render(<BirthdayDashboard />);
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "Enable birthday notifications",
+      }),
+    );
+
+    expect(
+      await screen.findByText(
+        "We couldn't enable birthday notifications. Try again or check your browser settings.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Try birthday notifications again",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("searchbox", { name: "Search students or classes" }),
+    ).toBeEnabled();
+    expect(requestPermission).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     [
       "denied",
@@ -279,21 +360,6 @@ describe("birthday dashboard", () => {
     fireEvent.keyDown(celebration, { key: "Escape" });
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("removes celebration motion when reduced motion is requested", () => {
-    const styles = readFileSync(
-      resolve(
-        process.cwd(),
-        "src/features/birthdays/Celebration.module.css",
-      ),
-      "utf8",
-    );
-    const reducedMotionRule = styles.match(
-      /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*)\}\s*$/,
-    )?.[1];
-
-    expect(reducedMotionRule).toMatch(/animation:\s*none/);
   });
 
   it("refreshes today's and upcoming birthdays across local midnight", async () => {

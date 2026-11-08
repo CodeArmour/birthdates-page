@@ -31,7 +31,7 @@ describe("birthday storage", () => {
       },
     ];
 
-    saveBirthdays(students);
+    expect(saveBirthdays(students)).toEqual({ saved: true });
 
     expect(window.localStorage.getItem(STORAGE_KEY)).toBe(
       JSON.stringify(students),
@@ -62,17 +62,17 @@ describe("birthday storage", () => {
     });
 
     expect(loadBirthdays()).toEqual([]);
-    expect(() =>
+    expect(
       saveBirthdays([
         { id: "ada", name: "Ada", birthDate: "2012-04-18" },
       ]),
-    ).not.toThrow();
+    ).toEqual({ saved: false });
   });
 
   it("is safe when rendered without a browser window", () => {
     vi.stubGlobal("window", undefined);
 
     expect(loadBirthdays()).toEqual([]);
-    expect(() => saveBirthdays([])).not.toThrow();
+    expect(saveBirthdays([])).toEqual({ saved: false });
   });
 });

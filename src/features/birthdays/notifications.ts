@@ -4,7 +4,8 @@ export type NotificationState =
   | "unsupported"
   | "default"
   | "granted"
-  | "denied";
+  | "denied"
+  | "error";
 
 const LAST_NOTIFIED_LOCAL_DATE_KEY =
   "student-birthdays:last-notified-local-date:v1";
@@ -55,7 +56,11 @@ export async function requestBirthdayNotifications(): Promise<NotificationState>
     return api.permission;
   }
 
-  return api.requestPermission();
+  try {
+    return await api.requestPermission();
+  } catch {
+    return "error";
+  }
 }
 
 export function notifyBirthdays(students: StudentBirthday[]): void {
