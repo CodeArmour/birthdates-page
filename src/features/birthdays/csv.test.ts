@@ -14,7 +14,7 @@ describe("parseStudentCsv", () => {
     expect(result).toEqual({
       accepted: [
         {
-          id: "ada-lovelace-2012-12-10",
+          id: expect.any(String),
           name: "Ada Lovelace",
           birthDate: "2012-12-10",
           className: "Class 7A",
@@ -29,7 +29,7 @@ describe("parseStudentCsv", () => {
     expect(parseStudentCsv("name,birthDate\nGrace Hopper,2011-12-09")).toEqual({
       accepted: [
         {
-          id: "grace-hopper-2011-12-09",
+          id: expect.any(String),
           name: "Grace Hopper",
           birthDate: "2011-12-09",
         },
@@ -45,7 +45,7 @@ describe("parseStudentCsv", () => {
 
     expect(result.accepted).toEqual([
       {
-        id: "river-quinn-2013-01-05",
+        id: expect.any(String),
         name: "River, Quinn",
         birthDate: "2013-01-05",
         className: "Class 6B",
@@ -116,6 +116,27 @@ describe("parseStudentCsv", () => {
     });
   });
 
+  it.each([
+    {
+      label: "non-Latin names",
+      rows: ["李雷,2012-04-18", "王芳,2012-04-18"],
+    },
+    {
+      label: "punctuation-distinct names",
+      rows: ["A-B,2012-04-18", "A B,2012-04-18"],
+    },
+  ])("creates distinct stable IDs for $label", ({ rows }) => {
+    const csv = ["name,birthDate", ...rows].join("\n");
+    const firstImport = parseStudentCsv(csv);
+    const repeatedImport = parseStudentCsv(csv);
+    const firstIds = firstImport.accepted.map((student) => student.id);
+    const repeatedIds = repeatedImport.accepted.map((student) => student.id);
+
+    expect(firstImport.accepted).toHaveLength(2);
+    expect(new Set(firstIds)).toHaveLength(2);
+    expect(repeatedIds).toEqual(firstIds);
+  });
+
   it("imports a normalized name/date pair only once", () => {
     const result = parseStudentCsv(
       [
@@ -127,7 +148,7 @@ describe("parseStudentCsv", () => {
 
     expect(result.accepted).toEqual([
       {
-        id: "avery-lane-2012-04-18",
+        id: expect.any(String),
         name: "Avery   Lane",
         birthDate: "2012-04-18",
         className: "Class 7A",

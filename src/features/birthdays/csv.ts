@@ -61,13 +61,7 @@ function normalizeName(name: string): string {
 }
 
 function studentId(normalizedName: string, birthDate: string): string {
-  const namePart = normalizedName
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  return `${namePart || "student"}-${birthDate}`;
+  return `${encodeURIComponent(normalizedName)}:${birthDate}`;
 }
 
 function isRealIsoDate(value: string): "format" | "calendar" | "valid" {
