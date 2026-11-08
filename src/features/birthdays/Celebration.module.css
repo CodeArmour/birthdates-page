@@ -1,0 +1,169 @@
+.overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  overflow-y: auto;
+  place-items: start center;
+  padding: 1.25rem;
+  background: rgb(23 42 70 / 72%);
+}
+
+.panel {
+  position: relative;
+  width: min(100%, 38rem);
+  margin-block: auto;
+  overflow: hidden;
+  border: 3px solid var(--color-navy);
+  border-radius: var(--radius-large);
+  padding: clamp(2rem, 7vw, 3.5rem);
+  background:
+    radial-gradient(circle at 82% 18%, rgb(244 191 79 / 32%) 0 4.5rem, transparent 4.6rem),
+    radial-gradient(circle at 10% 90%, rgb(184 221 224 / 42%) 0 6rem, transparent 6.1rem),
+    var(--color-paper);
+  box-shadow: 10px 10px 0 var(--color-gold), 0 2rem 6rem rgb(0 0 0 / 35%);
+  text-align: center;
+  animation: celebration-arrival 360ms cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 2px solid var(--color-navy);
+  border-radius: 999px;
+  background: var(--color-paper);
+  color: var(--color-navy);
+  cursor: pointer;
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.closeButton:hover {
+  background: var(--color-gold);
+}
+
+.eyebrow {
+  margin: 0 2.5rem 0.75rem;
+  color: var(--color-coral-dark);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panel h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.25rem, 8vw, 4.25rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.intro {
+  margin: 1rem auto 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.students {
+  display: grid;
+  margin: 1.5rem 0 0;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.students li {
+  display: grid;
+  gap: 0.3rem;
+  border: 2px solid var(--color-navy);
+  border-radius: var(--radius-medium);
+  padding: 0.95rem 1rem;
+  background: rgb(255 253 247 / 88%);
+  box-shadow: 4px 4px 0 var(--color-coral);
+}
+
+.students strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+}
+
+.students span {
+  color: var(--color-muted);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti span {
+  position: absolute;
+  top: -3rem;
+  left: 8%;
+  width: 0.75rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: var(--color-coral);
+  animation: confetti-fall 2.8s linear infinite;
+}
+
+.confetti span:nth-child(3n + 2) {
+  border-radius: 50%;
+  background: var(--color-gold);
+}
+
+.confetti span:nth-child(3n) {
+  background: var(--color-sky);
+}
+
+.confetti span:nth-child(2) { left: 18%; animation-delay: -1.6s; }
+.confetti span:nth-child(3) { left: 28%; animation-delay: -0.8s; }
+.confetti span:nth-child(4) { left: 38%; animation-delay: -2.2s; }
+.confetti span:nth-child(5) { left: 48%; animation-delay: -1.1s; }
+.confetti span:nth-child(6) { left: 58%; animation-delay: -2.6s; }
+.confetti span:nth-child(7) { left: 68%; animation-delay: -0.5s; }
+.confetti span:nth-child(8) { left: 78%; animation-delay: -1.9s; }
+.confetti span:nth-child(9) { left: 88%; animation-delay: -1.3s; }
+.confetti span:nth-child(10) { left: 13%; animation-delay: -2.4s; }
+.confetti span:nth-child(11) { left: 53%; animation-delay: -0.2s; }
+.confetti span:nth-child(12) { left: 93%; animation-delay: -2s; }
+
+@keyframes celebration-arrival {
+  from { opacity: 0; transform: translateY(1.5rem) scale(0.94) rotate(-1deg); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes confetti-fall {
+  to { transform: translateY(calc(100vh + 5rem)) rotate(540deg); }
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    align-items: start;
+    padding: 1rem;
+  }
+
+  .panel {
+    margin-block: 1rem;
+    padding: 3.5rem 1.25rem 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .confetti span {
+    animation: none;
+  }
+}
