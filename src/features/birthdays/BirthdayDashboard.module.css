@@ -51,8 +51,8 @@
 }
 
 .brandLogo {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 4.75rem;
+  height: 4.75rem;
   flex-shrink: 0;
   object-fit: contain;
 }

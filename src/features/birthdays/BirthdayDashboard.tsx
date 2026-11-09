@@ -124,8 +124,8 @@ export default function BirthdayDashboard() {
             src="/branding/birthday-calendar-logo.png"
             overrideSrc="/branding/birthday-calendar-logo.png"
             alt=""
-            width={56}
-            height={56}
+            width={76}
+            height={76}
           />
           {text.brand}
         </a>

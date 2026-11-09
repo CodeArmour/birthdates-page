@@ -19,4 +19,13 @@ describe("birthday dashboard logo", () => {
       screen.getByRole("link", { name: "Startpagina verjaardagen van studenten" }),
     ).toBeInTheDocument();
   });
+
+  it("sizes the logo box to 76 pixels so the transparent artwork meets the visible-size target", () => {
+    render(<BirthdayDashboard />);
+
+    const logo = screen.getByRole("link", { name: "Student Birthdates home" }).querySelector("img");
+
+    expect(logo).toHaveAttribute("width", "76");
+    expect(logo).toHaveAttribute("height", "76");
+  });
 });
