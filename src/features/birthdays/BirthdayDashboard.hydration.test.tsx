@@ -67,7 +67,7 @@ describe("birthday dashboard hydration", () => {
 
     await hydrateDashboard(markup, (container) => {
       expect(within(container).getByText(message)).toBeInTheDocument();
-      expect(within(container).getAllByRole("article")).toHaveLength(39);
+      expect(within(container).getAllByRole("article")).toHaveLength(62);
       expect(requestPermission).not.toHaveBeenCalled();
       const enable = within(container).queryByRole("button", { name: "Enable birthday notifications" });
       if (permission === "default") {
@@ -84,7 +84,7 @@ describe("birthday dashboard hydration", () => {
     expect(januaryMarkup).toBe(novemberMarkup);
     const initialContainer = document.createElement("div");
     initialContainer.innerHTML = januaryMarkup;
-    expect(within(initialContainer).getAllByRole("article")).toHaveLength(39);
+    expect(within(initialContainer).getAllByRole("article")).toHaveLength(62);
     expect(within(initialContainer).queryByRole("dialog")).not.toBeInTheDocument();
     expect(within(initialContainer).queryByText(/^In \d+ days?$/)).not.toBeInTheDocument();
 
@@ -92,8 +92,8 @@ describe("birthday dashboard hydration", () => {
       const today = within(container).getByRole("region", { name: "Today's birthdays" });
       expect(within(today).getByRole("heading", { name: "Noella" })).toBeInTheDocument();
       const upcoming = within(container).getByRole("region", { name: "Upcoming birthdays" });
-      expect(within(upcoming).getAllByRole("heading", { level: 3 })[0]).toHaveTextContent("Kadhim");
-      expect(within(upcoming).getByText("In 19 days")).toBeInTheDocument();
+      expect(within(upcoming).getAllByRole("heading", { level: 3 })[0]).toHaveTextContent("Matiiss");
+      expect(within(upcoming).getByText("In 2 days")).toBeInTheDocument();
       expect(within(container).getByRole("dialog", { name: "Today's birthday celebration" })).toBeInTheDocument();
     });
   });

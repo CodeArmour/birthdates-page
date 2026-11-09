@@ -34,7 +34,7 @@ describe("student birthdays page", () => {
       screen.getByRole("heading", { level: 1, name: "Student birthdays" }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getAllByRole("article")).toHaveLength(39);
+    expect(screen.getAllByRole("article")).toHaveLength(62);
     expect(screen.queryByRole("button", { name: /import|upload|replace data/i })).not.toBeInTheDocument();
     expect(container.querySelector('input[type="file"]')).toBeNull();
   });
