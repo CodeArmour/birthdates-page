@@ -20,6 +20,36 @@
   gap: 1rem;
 }
 
+.brandGroup {
+  min-width: 0;
+}
+
+.developerCredit {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.portfolioLink {
+  border-radius: 0.15rem;
+  color: var(--color-navy);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.portfolioLink:hover {
+  background: var(--color-gold);
+  text-decoration-thickness: 2px;
+}
+
+.portfolioLink:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 4px;
+  background: var(--color-gold);
+}
+
 .brand {
   display: inline-flex;
   min-height: 2.75rem;
@@ -325,6 +355,40 @@
   width: min(100%, 72rem);
   margin: 0 auto;
   gap: 3rem;
+}
+
+.footer {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 72rem);
+  margin: 3rem auto 0;
+  border-top: 1px solid var(--color-navy);
+  padding-top: 1.25rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer p + p {
+  margin-top: 0.25rem;
+}
+
+.footerHeart {
+  color: var(--color-coral-dark);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .notificationPanel {

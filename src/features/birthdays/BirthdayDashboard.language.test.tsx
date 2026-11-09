@@ -35,6 +35,11 @@ describe("dashboard language switching", () => {
     expect(screen.getByText("De feestkalender van de klas")).toBeInTheDocument();
     expect(screen.getByText("Houd elke bijzondere dag in het oog, van de verjaardagen van vandaag tot de volgende feestjes.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Startpagina verjaardagen van studenten" })).toHaveTextContent("Verjaardagskalender");
+    expect(screen.getByText("Ontwikkeld door", { exact: false, selector: "header p" })).toHaveTextContent("Ontwikkeld door Omar");
+    expect(screen.getByText("© 2026 Verjaardagskalender")).toBeVisible();
+    expect(screen.getByText("Met", { exact: false, selector: "footer p" })).toHaveTextContent(
+      "Met ♥liefde ontwikkeld door Omar · Elke bijzondere dag verdient een klein feestje.",
+    );
     expect(screen.getByText("In samenwerking met")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Samen vieren" })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "University of Antwerp — Linguapolis" })).toBeInTheDocument();
@@ -61,6 +66,11 @@ describe("dashboard language switching", () => {
     fireEvent.click(screen.getByRole("button", { name: /^English — overschakelen naar Engels$/ }));
     expect(screen.getByRole("main")).toHaveAttribute("lang", "en");
     expect(screen.getByRole("heading", { name: "Student birthdays" })).toBeInTheDocument();
+    expect(screen.getByText("Developed by", { exact: false })).toHaveTextContent("Developed by Omar");
+    expect(screen.getByText("© 2026 Birthday desk")).toBeVisible();
+    expect(screen.getByText("Developed with", { exact: false })).toHaveTextContent(
+      "Developed with ♥love by Omar · Every special day deserves a little celebration.",
+    );
     expect(screen.getByRole("dialog", { name: "Today's birthday celebration" })).toHaveAccessibleDescription("One brilliant student is celebrating today!");
     expect(screen.getByRole("button", { name: "Close celebration" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "No matches found" })).toBeInTheDocument();
