@@ -163,6 +163,67 @@
   line-height: 1.65;
 }
 
+.partnerStrip {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(100%, 72rem);
+  margin: 0 auto 3rem;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.partnerHeading .eyebrow {
+  margin-bottom: 0.55rem;
+  font-size: 0.68rem;
+}
+
+.partnerHeading h2 {
+  max-width: 13ch;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.partnerLogos {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.partnerCard {
+  display: flex;
+  min-width: 0;
+  min-height: 8rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: #fff;
+  box-shadow: 3px 3px 0 rgb(23 42 64 / 8%);
+}
+
+.linguapolisLogo,
+.universityLogo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.linguapolisLogo {
+  max-width: 22rem;
+}
+
+.universityLogo {
+  max-width: 17rem;
+}
+
 .emptyState {
   position: relative;
   z-index: 1;
@@ -478,6 +539,18 @@
 }
 
 @media (max-width: 760px) {
+  .partnerStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .partnerHeading {
+    text-align: center;
+  }
+
+  .partnerHeading h2 {
+    max-width: none;
+  }
+
   .upcomingHeading {
     align-items: stretch;
     flex-direction: column;
@@ -496,6 +569,10 @@
 }
 
 @media (max-width: 600px) {
+  .partnerLogos {
+    grid-template-columns: 1fr;
+  }
+
   .page {
     padding: 1rem 1rem 2.5rem;
   }

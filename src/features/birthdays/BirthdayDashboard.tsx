@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import BirthdayCard from "./BirthdayCard";
@@ -153,6 +154,36 @@ export default function BirthdayDashboard() {
           Keep every special day in sight, from today&apos;s celebrations to
           the birthdays coming up next.
         </p>
+      </section>
+
+      <section className={styles.partnerStrip} aria-labelledby="partners-title">
+        <div className={styles.partnerHeading}>
+          <p className={styles.eyebrow}>In collaboration with</p>
+          <h2 id="partners-title">A shared celebration</h2>
+        </div>
+        <div className={styles.partnerLogos}>
+          <div className={styles.partnerCard}>
+            <Image
+              className={styles.linguapolisLogo}
+              src="/branding/linguapolis-logo.jpg"
+              alt="University of Antwerp — Linguapolis"
+              loading="eager"
+              width={1624}
+              height={425}
+              sizes="(max-width: 600px) 80vw, (max-width: 760px) 40vw, 352px"
+            />
+          </div>
+          <div className={styles.partnerCard}>
+            <Image
+              className={styles.universityLogo}
+              src="/branding/university-of-antwerp-logo.png"
+              alt="Universiteit Antwerpen"
+              width={738}
+              height={243}
+              sizes="(max-width: 600px) 75vw, (max-width: 760px) 36vw, 272px"
+            />
+          </div>
+        </div>
       </section>
 
       <div className={styles.dashboard}>
