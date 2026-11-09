@@ -119,9 +119,14 @@ export default function BirthdayDashboard() {
           href="#main-content"
           aria-label={text.homeLabel}
         >
-          <span className={styles.brandMark} aria-hidden="true">
-            B
-          </span>
+          <Image
+            className={styles.brandLogo}
+            src="/branding/birthday-calendar-logo.png"
+            overrideSrc="/branding/birthday-calendar-logo.png"
+            alt=""
+            width={76}
+            height={76}
+          />
           {text.brand}
         </a>
         <button

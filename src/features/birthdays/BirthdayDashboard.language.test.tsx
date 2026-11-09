@@ -47,8 +47,8 @@ describe("dashboard language switching", () => {
     expect(within(today).getByText("5 november")).toBeInTheDocument();
     expect(within(today).getByText("Vandaag")).toBeInTheDocument();
     const upcoming = screen.getByRole("region", { name: "Komende verjaardagen" });
-    expect(within(upcoming).getByText("24 november")).toBeInTheDocument();
-    expect(within(upcoming).getByText("Over 19 dagen")).toBeInTheDocument();
+    expect(within(upcoming).getByText("7 november")).toBeInTheDocument();
+    expect(within(upcoming).getByText("Over 2 dagen")).toBeInTheDocument();
     const celebration = screen.getByRole("dialog", { name: "Verjaardagsfeest van vandaag" });
     expect(within(celebration).getByText("Vandaag is het tijd voor confetti")).toBeInTheDocument();
     expect(celebration).toHaveAccessibleDescription("Vandaag viert één geweldige student zijn of haar verjaardag!");
@@ -65,8 +65,8 @@ describe("dashboard language switching", () => {
     expect(screen.getByRole("button", { name: "Close celebration" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "No matches found" })).toBeInTheDocument();
     fireEvent.change(screen.getByRole("searchbox", { name: "Search students" }), { target: { value: "" } });
-    expect(screen.getByText("November 24")).toBeInTheDocument();
-    expect(screen.getByText("In 19 days")).toBeInTheDocument();
+    expect(screen.getByText("November 7")).toBeInTheDocument();
+    expect(screen.getByText("In 2 days")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Switch to Nederlands" })).toBeInTheDocument();
   });
 

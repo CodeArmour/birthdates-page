@@ -54,10 +54,10 @@ describe("birthday dashboard", () => {
     vi.useRealTimers();
   });
 
-  it("immediately renders all 39 built-in birthdays without an upload", () => {
+  it("immediately renders all 62 built-in birthdays without an upload", () => {
     render(<BirthdayDashboard />);
 
-    expect(screen.getAllByRole("article")).toHaveLength(39);
+    expect(screen.getAllByRole("article")).toHaveLength(62);
     expect(screen.getByRole("heading", { name: "Noella" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Omar" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "No birthdays yet" })).not.toBeInTheDocument();
@@ -84,7 +84,7 @@ describe("birthday dashboard", () => {
     render(<BirthdayDashboard />);
 
     await act(async () => {});
-    expect(screen.getAllByRole("article")).toHaveLength(39);
+    expect(screen.getAllByRole("article")).toHaveLength(62);
     expect(screen.queryByText("Legacy")).not.toBeInTheDocument();
     expect(getItem).not.toHaveBeenCalledWith(STORAGE_KEY);
     expect(getItem.mock.calls).toEqual([
@@ -112,7 +112,7 @@ describe("birthday dashboard", () => {
     expect(within(upcoming).queryByRole("heading", { name: "Kadhim" })).not.toBeInTheDocument();
 
     fireEvent.change(search, { target: { value: "" } });
-    expect(within(upcoming).getAllByRole("article")).toHaveLength(38);
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(61);
   });
 
   it("highlights today's built-in birthdays without displaying birth years", async () => {
@@ -223,7 +223,7 @@ describe("birthday dashboard", () => {
   });
 
   it("refreshes today's and upcoming birthdays across local midnight", async () => {
-    vi.setSystemTime(new Date(2026, 2, 4, 23, 59, 30));
+    vi.setSystemTime(new Date(2026, 3, 29, 23, 59, 30));
     render(<BirthdayDashboard />);
 
     expect(screen.queryByRole("region", { name: "Today's birthdays" })).not.toBeInTheDocument();
@@ -236,11 +236,11 @@ describe("birthday dashboard", () => {
     const today = screen.getByRole("region", { name: "Today's birthdays" });
     expect(
       within(today).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
-    ).toEqual(["Erdem", "Anna"]);
+    ).toEqual(["Amanda", "Axel"]);
     const upcoming = screen.getByRole("region", { name: "Upcoming birthdays" });
-    expect(within(upcoming).queryByRole("heading", { name: "Erdem" })).not.toBeInTheDocument();
-    expect(within(upcoming).queryByRole("heading", { name: "Anna" })).not.toBeInTheDocument();
-    expect(within(upcoming).getAllByRole("article")).toHaveLength(37);
+    expect(within(upcoming).queryByRole("heading", { name: "Amanda" })).not.toBeInTheDocument();
+    expect(within(upcoming).queryByRole("heading", { name: "Axel" })).not.toBeInTheDocument();
+    expect(within(upcoming).getAllByRole("article")).toHaveLength(60);
   });
 
   it("orders upcoming birthdays by next celebration date and keeps same-day source order", async () => {
@@ -252,11 +252,13 @@ describe("birthday dashboard", () => {
     expect(
       within(upcoming).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
     ).toEqual([
-      "Sara", "Peter", "Birgit", "Lieve", "Omar", "Maria", "Akim", "Erdem", "Anna", "Duru", "Lee",
-      "Victory", "Defne", "Johans", "Celine", "Charbel", "Edgem", "Amanda", "Emaan",
-      "Hajar", "Liza", "Mohammed", "Eva", "Fren", "Eureolle", "Trawat", "Nidal",
-      "Maks", "Els", "Ali", "Saja", "Noella", "Kadhim", "Trinity", "Ginny", "Nabila", "Bill",
-      "Eva", "Guerin",
+      "Peter", "Birgit", "Lieve", "Omar", "Maria", "Akin", "Erdem", "Duru", "Lee",
+      "Victory", "River", "Defne", "Celine", "Johans", "Reina", "Edjem", "Amanda", "Axel",
+      "Emaan", "Hajar", "Maria", "Hassan", "Liza", "Elda", "Emmanuel", "Ali", "Mohammed",
+      "Eva", "Fren", "Eureolle", "Numa", "Rozhna", "Trawat", "Nidal", "Maksym", "Els",
+      "Jomana", "Melike", "Ali", "Manef", "Nabeel", "Saja", "Noella", "Matiiss", "Zahra",
+      "Carolin", "Kadhim", "Evariste", "Sally", "Trinity", "Graham", "Anna", "Ginny",
+      "Nothando", "Perle", "Charbel", "Nabila", "Bill", "Eva", "Annisa", "Guerin",
     ]);
   });
 

@@ -50,17 +50,11 @@
   background: var(--color-gold);
 }
 
-.brandMark {
-  display: grid;
-  width: 2.75rem;
-  height: 2.75rem;
-  place-items: center;
-  border: 2px solid var(--color-navy);
-  border-radius: 0.85rem 0.85rem 1.25rem 0.85rem;
-  background: var(--color-gold);
-  box-shadow: 4px 4px 0 var(--color-navy);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.35rem;
+.brandLogo {
+  width: 4.75rem;
+  height: 4.75rem;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .importer {
@@ -598,10 +592,6 @@
 
   .brand {
     font-size: 0;
-  }
-
-  .brandMark {
-    font-size: 1.2rem;
   }
 
   .importButton {

@@ -6,6 +6,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Student Birthdates",
   description: "Keep student birthdays close and celebrate every special day.",
+  icons: {
+    icon: "/branding/birthday-calendar-logo.png",
+  },
 };
 
 type RootLayoutProps = Readonly<{
