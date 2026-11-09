@@ -20,6 +20,8 @@ import {
 import styles from "./BirthdayDashboard.module.css";
 import type { StudentBirthday } from "./types";
 
+const PORTFOLIO_URL = "https://omarcode.dev/";
+
 export default function BirthdayDashboard() {
   const [language, setLanguage] = useState<Language>("en");
   const text = copy[language];
@@ -114,21 +116,27 @@ export default function BirthdayDashboard() {
       <span className={styles.confettiThree} aria-hidden="true" />
 
       <header className={styles.header}>
-        <a
-          className={styles.brand}
-          href="#main-content"
-          aria-label={text.homeLabel}
-        >
-          <Image
-            className={styles.brandLogo}
-            src="/branding/birthday-calendar-logo.png"
-            overrideSrc="/branding/birthday-calendar-logo.png"
-            alt=""
-            width={76}
-            height={76}
-          />
-          {text.brand}
-        </a>
+        <div className={styles.brandGroup}>
+          <a
+            className={styles.brand}
+            href="#main-content"
+            aria-label={text.homeLabel}
+          >
+            <Image
+              className={styles.brandLogo}
+              src="/branding/birthday-calendar-logo.png"
+              overrideSrc="/branding/birthday-calendar-logo.png"
+              alt=""
+              width={76}
+              height={76}
+            />
+            {text.brand}
+          </a>
+          <p className={styles.developerCredit}>
+            {text.developerCredit}{" "}
+            <a className={styles.portfolioLink} href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">Omar</a>
+          </p>
+        </div>
         <button
           className={styles.languageButton}
           type="button"
@@ -264,6 +272,16 @@ export default function BirthdayDashboard() {
           )}
         </section>
       </div>
+
+      <footer className={styles.footer}>
+        <p>{text.footerCopyright}</p>
+        <p>
+          {text.footerCreditStart} <span className={styles.footerHeart} aria-hidden="true">♥</span>{" "}
+          {text.footerCreditEnd}{" "}
+          <a className={styles.portfolioLink} href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">Omar</a>
+          {" · "}{text.footerTagline}
+        </p>
+      </footer>
 
       {celebrationOpen && todaysBirthdays.length > 0 ? (
         <Celebration
