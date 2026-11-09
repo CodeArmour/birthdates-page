@@ -167,6 +167,7 @@ export default function BirthdayDashboard() {
               className={styles.linguapolisLogo}
               src="/branding/linguapolis-logo.jpg"
               alt="University of Antwerp — Linguapolis"
+              loading="eager"
               width={1624}
               height={425}
               sizes="(max-width: 600px) 80vw, (max-width: 760px) 40vw, 352px"

@@ -13,7 +13,7 @@ describe("student birthdays page", () => {
     expect(within(partners).getByText("In collaboration with")).toBeInTheDocument();
     expect(
       within(partners).getByRole("img", { name: "University of Antwerp — Linguapolis" }),
-    ).toBeInTheDocument();
+    ).toHaveAttribute("loading", "eager");
     expect(
       within(partners).getByRole("img", { name: "Universiteit Antwerpen" }),
     ).toBeInTheDocument();
