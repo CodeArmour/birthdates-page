@@ -9,20 +9,20 @@ describe("public built-in birthdays", () => {
       { id: "builtin-02", name: "Defne", birthDate: "2000-03-21" },
       { id: "builtin-03", name: "Eureolle", birthDate: "2000-08-02" },
       { id: "builtin-04", name: "Erdem", birthDate: "2000-03-05" },
-      { id: "builtin-05", name: "Anna", birthDate: "2000-01-06" },
+      { id: "builtin-05", name: "Anna", birthDate: "2000-03-05" },
       { id: "builtin-06", name: "Kadhim", birthDate: "2000-11-24" },
       { id: "builtin-07", name: "Celine", birthDate: "2000-04-17" },
       { id: "builtin-08", name: "Mohammed", birthDate: "2000-07-03" },
       { id: "builtin-09", name: "Johans", birthDate: "2000-04-17" },
       { id: "builtin-10", name: "Charbel", birthDate: "2000-01-15" },
-      { id: "builtin-11", name: "Maria", birthDate: "2000-02-25" },
+      { id: "builtin-11", name: "Maria.B", birthDate: "2000-02-25" },
       { id: "builtin-12", name: "Eva", birthDate: "2000-07-11" },
       { id: "builtin-13", name: "Duru", birthDate: "2000-03-11" },
       { id: "builtin-14", name: "Victory", birthDate: "2000-03-16" },
       { id: "builtin-15", name: "Liza", birthDate: "2000-05-15" },
       { id: "builtin-16", name: "Amanda", birthDate: "2000-04-30" },
       { id: "builtin-17", name: "Peter", birthDate: "2000-02-01" },
-      { id: "builtin-18", name: "Ali", birthDate: "2000-10-11" },
+      { id: "builtin-18", name: "Ali.R", birthDate: "2000-10-11" },
       { id: "builtin-19", name: "Nabila", birthDate: "2000-01-16" },
       { id: "builtin-20", name: "Bill", birthDate: "2000-01-18" },
       { id: "builtin-22", name: "Guerin", birthDate: "2000-01-21" },
@@ -44,11 +44,11 @@ describe("public built-in birthdays", () => {
       { id: "builtin-38", name: "Eva", birthDate: "2000-01-19" },
       { id: "builtin-39", name: "Birgit", birthDate: "2000-02-09" },
       { id: "builtin-40", name: "Lieve", birthDate: "2000-02-12" },
-      { id: "builtin-41", name: "Ali", birthDate: "2000-06-29" },
+      { id: "builtin-41", name: "Ali.H", birthDate: "2000-06-29" },
       { id: "builtin-42", name: "Evariste", birthDate: "2000-11-24" },
       { id: "builtin-43", name: "Melike", birthDate: "2000-10-01" },
       { id: "builtin-44", name: "Sally", birthDate: "2000-12-13" },
-      { id: "builtin-45", name: "Maria", birthDate: "2000-05-09" },
+      { id: "builtin-45", name: "Maria.O", birthDate: "2000-05-09" },
       { id: "builtin-46", name: "Emmanuel", birthDate: "2000-05-31" },
       { id: "builtin-47", name: "Axel", birthDate: "2000-04-30" },
       { id: "builtin-48", name: "Elda", birthDate: "2000-05-17" },
@@ -70,11 +70,11 @@ describe("public built-in birthdays", () => {
     ]);
   });
 
-  it("uses unique IDs and single-token first names that may repeat", () => {
+  it("uses unique IDs and public single-token names with optional dot initials", () => {
     expect(BUILT_IN_BIRTHDAYS).toHaveLength(62);
     expect(new Set(BUILT_IN_BIRTHDAYS.map(({ id }) => id)).size).toBe(62);
     for (const student of BUILT_IN_BIRTHDAYS) {
-      expect(student.name).toMatch(/^\p{L}+$/u);
+      expect(student.name).toMatch(/^\p{L}+(?:\.\p{L}+)?$/u);
       expect(Object.keys(student).sort()).toEqual(["birthDate", "id", "name"]);
     }
   });
