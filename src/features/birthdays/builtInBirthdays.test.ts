@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { BUILT_IN_BIRTHDAYS } from "./builtInBirthdays";
 
 describe("public built-in birthdays", () => {
-  it("contains exactly the 40 approved sanitized records", () => {
+  it("contains exactly the 39 approved sanitized records", () => {
     expect(BUILT_IN_BIRTHDAYS).toEqual([
       { id: "builtin-01", name: "Omar", birthDate: "2000-02-13" },
       { id: "builtin-02", name: "Defne", birthDate: "2000-03-21" },
@@ -25,7 +25,6 @@ describe("public built-in birthdays", () => {
       { id: "builtin-18", name: "Ali", birthDate: "2000-10-11" },
       { id: "builtin-19", name: "Nabila", birthDate: "2000-01-16" },
       { id: "builtin-20", name: "Bill", birthDate: "2000-01-18" },
-      { id: "builtin-21", name: "Teacher", birthDate: "2000-01-19" },
       { id: "builtin-22", name: "Guerin", birthDate: "2000-01-21" },
       { id: "builtin-23", name: "Sara", birthDate: "2000-01-31" },
       { id: "builtin-24", name: "Trinity", birthDate: "2000-01-03" },
@@ -49,8 +48,8 @@ describe("public built-in birthdays", () => {
   });
 
   it("uses unique IDs and single-token first names that may repeat", () => {
-    expect(BUILT_IN_BIRTHDAYS).toHaveLength(40);
-    expect(new Set(BUILT_IN_BIRTHDAYS.map(({ id }) => id)).size).toBe(40);
+    expect(BUILT_IN_BIRTHDAYS).toHaveLength(39);
+    expect(new Set(BUILT_IN_BIRTHDAYS.map(({ id }) => id)).size).toBe(39);
     for (const student of BUILT_IN_BIRTHDAYS) {
       expect(student.name).toMatch(/^\p{L}+$/u);
       expect(Object.keys(student).sort()).toEqual(["birthDate", "id", "name"]);
