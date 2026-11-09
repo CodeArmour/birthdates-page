@@ -38,7 +38,7 @@ describe("dashboard language switching", () => {
     expect(screen.getByText("Ontwikkeld door", { exact: false, selector: "header p" })).toHaveTextContent("Ontwikkeld door Omar");
     expect(screen.getByText("© 2026 Verjaardagskalender")).toBeVisible();
     expect(screen.getByText("Met", { exact: false, selector: "footer p" })).toHaveTextContent(
-      "Met ♥ ontwikkeld door Omar · Elke bijzondere dag verdient een klein feestje.",
+      "Met ♥liefde ontwikkeld door Omar · Elke bijzondere dag verdient een klein feestje.",
     );
     expect(screen.getByText("In samenwerking met")).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Samen vieren" })).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe("dashboard language switching", () => {
     expect(screen.getByText("Developed by", { exact: false })).toHaveTextContent("Developed by Omar");
     expect(screen.getByText("© 2026 Birthday desk")).toBeVisible();
     expect(screen.getByText("Developed with", { exact: false })).toHaveTextContent(
-      "Developed with ♥ by Omar · Every special day deserves a little celebration.",
+      "Developed with ♥love by Omar · Every special day deserves a little celebration.",
     );
     expect(screen.getByRole("dialog", { name: "Today's birthday celebration" })).toHaveAccessibleDescription("One brilliant student is celebrating today!");
     expect(screen.getByRole("button", { name: "Close celebration" })).toBeInTheDocument();

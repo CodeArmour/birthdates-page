@@ -110,7 +110,8 @@ export default function BirthdayDashboard() {
   }
 
   return (
-    <main className={styles.page} id="main-content" lang={language}>
+    <div className={styles.page} lang={language}>
+      <main id="main-content" lang={language}>
       <span className={styles.confettiOne} aria-hidden="true" />
       <span className={styles.confettiTwo} aria-hidden="true" />
       <span className={styles.confettiThree} aria-hidden="true" />
@@ -273,16 +274,6 @@ export default function BirthdayDashboard() {
         </section>
       </div>
 
-      <footer className={styles.footer}>
-        <p>{text.footerCopyright}</p>
-        <p>
-          {text.footerCreditStart} <span className={styles.footerHeart} aria-hidden="true">♥</span>{" "}
-          {text.footerCreditEnd}{" "}
-          <a className={styles.portfolioLink} href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">Omar</a>
-          {" · "}{text.footerTagline}
-        </p>
-      </footer>
-
       {celebrationOpen && todaysBirthdays.length > 0 ? (
         <Celebration
           students={todaysBirthdays}
@@ -290,6 +281,17 @@ export default function BirthdayDashboard() {
           onDismiss={() => setDismissedCelebration(todaySignature)}
         />
       ) : null}
-    </main>
+      </main>
+      <footer className={styles.footer}>
+        <p>{text.footerCopyright}</p>
+        <p>
+          {text.footerCreditStart} <span className={styles.footerHeart} aria-hidden="true">♥</span>
+          <span className={styles.srOnly}>{text.footerLove}</span>{" "}
+          {text.footerCreditEnd}{" "}
+          <a className={styles.portfolioLink} href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">Omar</a>
+          {" · "}{text.footerTagline}
+        </p>
+      </footer>
+    </div>
   );
 }
