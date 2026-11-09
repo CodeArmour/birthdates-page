@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import BirthdayCard from "./BirthdayCard";
 import Celebration from "./Celebration";
 import { BUILT_IN_BIRTHDAYS } from "./builtInBirthdays";
+import { copy, type Language } from "./copy";
 import {
   getTodaysBirthdays,
   sortByUpcomingBirthday,
@@ -20,6 +21,8 @@ import styles from "./BirthdayDashboard.module.css";
 import type { StudentBirthday } from "./types";
 
 export default function BirthdayDashboard() {
+  const [language, setLanguage] = useState<Language>("en");
+  const text = copy[language];
   const [students] = useState<StudentBirthday[]>(() => [...BUILT_IN_BIRTHDAYS]);
   const [search, setSearch] = useState("");
   // Match server HTML before reading the visitor's date and browser permissions.
@@ -104,32 +107,8 @@ export default function BirthdayDashboard() {
     }
   }
 
-  function notificationMessage() {
-    if (notificationState === null) {
-      return "Checking birthday reminders...";
-    }
-
-    if (notificationState === "granted") {
-      return "Birthday notifications are enabled while this page is open.";
-    }
-
-    if (notificationState === "denied") {
-      return "Birthday notifications are blocked in your browser settings.";
-    }
-
-    if (notificationState === "unsupported") {
-      return "Birthday notifications are not supported in this browser.";
-    }
-
-    if (notificationState === "error") {
-      return "We couldn't enable birthday notifications. Try again or check your browser settings.";
-    }
-
-    return "Get a reminder for today's birthdays while this page is open.";
-  }
-
   return (
-    <main className={styles.page} id="main-content">
+    <main className={styles.page} id="main-content" lang={language}>
       <span className={styles.confettiOne} aria-hidden="true" />
       <span className={styles.confettiTwo} aria-hidden="true" />
       <span className={styles.confettiThree} aria-hidden="true" />
@@ -138,28 +117,35 @@ export default function BirthdayDashboard() {
         <a
           className={styles.brand}
           href="#main-content"
-          aria-label="Student Birthdates home"
+          aria-label={text.homeLabel}
         >
           <span className={styles.brandMark} aria-hidden="true">
             B
           </span>
-          Birthday desk
+          {text.brand}
         </a>
+        <button
+          className={styles.languageButton}
+          type="button"
+          aria-label={text.languageLabel}
+          onClick={() => setLanguage(language === "en" ? "nl" : "en")}
+        >
+          <span lang={language === "en" ? "nl" : "en"}>{text.languageButton}</span>
+        </button>
       </header>
 
       <section className={styles.hero} aria-labelledby="page-title">
-        <p className={styles.eyebrow}>The class celebration calendar</p>
-        <h1 id="page-title">Student birthdays</h1>
+        <p className={styles.eyebrow}>{text.eyebrow}</p>
+        <h1 id="page-title">{text.title}</h1>
         <p className={styles.intro}>
-          Keep every special day in sight, from today&apos;s celebrations to
-          the birthdays coming up next.
+          {text.intro}
         </p>
       </section>
 
       <section className={styles.partnerStrip} aria-labelledby="partners-title">
         <div className={styles.partnerHeading}>
-          <p className={styles.eyebrow}>In collaboration with</p>
-          <h2 id="partners-title">A shared celebration</h2>
+          <p className={styles.eyebrow}>{text.partnersEyebrow}</p>
+          <h2 id="partners-title">{text.partnersTitle}</h2>
         </div>
         <div className={styles.partnerLogos}>
           <div className={styles.partnerCard}>
@@ -187,16 +173,16 @@ export default function BirthdayDashboard() {
       </section>
 
       <div className={styles.dashboard}>
-        <aside className={styles.notificationPanel} aria-label="Birthday notifications">
+        <aside className={styles.notificationPanel} aria-label={text.notificationLabel}>
           <div>
-            <strong>Birthday reminders</strong>
-            <p aria-live="polite">{notificationMessage()}</p>
+            <strong>{text.notificationTitle}</strong>
+            <p aria-live="polite">{text.notificationMessages[notificationState ?? "checking"]}</p>
           </div>
           {notificationState === "default" || notificationState === "error" ? (
             <button type="button" onClick={enableNotifications}>
               {notificationState === "error"
-                ? "Try birthday notifications again"
-                : "Enable birthday notifications"}
+                ? text.retryNotifications
+                : text.enableNotifications}
             </button>
           ) : null}
         </aside>
@@ -205,11 +191,11 @@ export default function BirthdayDashboard() {
           <section
             className={styles.todaySection}
             aria-labelledby="today-title"
-            aria-label="Today's birthdays"
+            aria-label={text.todayTitle}
           >
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}>Make some noise</p>
-              <h2 id="today-title">Today&apos;s birthdays</h2>
+              <p className={styles.eyebrow}>{text.todayEyebrow}</p>
+              <h2 id="today-title">{text.todayTitle}</h2>
             </div>
             <div className={styles.todayGrid}>
               {todaysBirthdays.map((student) => (
@@ -217,32 +203,33 @@ export default function BirthdayDashboard() {
                   key={student.id}
                   now={now}
                   student={student}
+                  language={language}
                   today
                 />
               ))}
             </div>
           </section>
         ) : now ? (
-          <p className={styles.quietToday}>No birthdays today — the next celebration is on its way.</p>
+          <p className={styles.quietToday}>{text.quietToday}</p>
         ) : null}
 
         <section
           className={styles.upcomingSection}
           aria-labelledby="upcoming-title"
-          aria-label="Upcoming birthdays"
+          aria-label={text.upcomingTitle}
         >
           <div className={styles.upcomingHeading}>
             <div className={styles.sectionHeading}>
-              <p className={styles.eyebrow}>Coming up next</p>
-              <h2 id="upcoming-title">Upcoming birthdays</h2>
+              <p className={styles.eyebrow}>{text.upcomingEyebrow}</p>
+              <h2 id="upcoming-title">{text.upcomingTitle}</h2>
             </div>
             <div className={styles.filters} role="search">
               <label>
-                <span>Search students</span>
+                <span>{text.search}</span>
                 <input
                   type="search"
                   value={search}
-                  placeholder="Try a first name"
+                  placeholder={text.searchPlaceholder}
                   onChange={(event) => setSearch(event.currentTarget.value)}
                 />
               </label>
@@ -252,20 +239,20 @@ export default function BirthdayDashboard() {
           {filteredUpcoming.length > 0 ? (
             <div className={styles.cardGrid}>
               {filteredUpcoming.map((student) => (
-                <BirthdayCard key={student.id} now={now} student={student} />
+                <BirthdayCard key={student.id} now={now} student={student} language={language} />
               ))}
             </div>
           ) : (
             <div className={styles.noResults}>
               {search.length === 0 ? (
                 <>
-                  <h3>No upcoming birthdays</h3>
-                  <p>Today&apos;s celebrations are the only ones on the calendar.</p>
+                  <h3>{text.noUpcoming}</h3>
+                  <p>{text.noUpcomingDescription}</p>
                 </>
               ) : (
                 <>
-                  <h3>No matches found</h3>
-                  <p>Try another first name.</p>
+                  <h3>{text.noMatches}</h3>
+                  <p>{text.noMatchesDescription}</p>
                 </>
               )}
             </div>
@@ -276,6 +263,7 @@ export default function BirthdayDashboard() {
       {celebrationOpen && todaysBirthdays.length > 0 ? (
         <Celebration
           students={todaysBirthdays}
+          language={language}
           onDismiss={() => setDismissedCelebration(todaySignature)}
         />
       ) : null}

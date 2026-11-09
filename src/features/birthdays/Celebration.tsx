@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { copy, type Language } from "./copy";
 
 import styles from "./Celebration.module.css";
 import type { StudentBirthday } from "./types";
@@ -8,12 +9,15 @@ import type { StudentBirthday } from "./types";
 interface CelebrationProps {
   onDismiss: () => void;
   students: StudentBirthday[];
+  language?: Language;
 }
 
 export default function Celebration({
   onDismiss,
   students,
+  language = "en",
 }: CelebrationProps) {
+  const text = copy[language];
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -60,17 +64,15 @@ export default function Celebration({
           ref={closeButtonRef}
           className={styles.closeButton}
           type="button"
-          aria-label="Close celebration"
+          aria-label={text.closeCelebration}
           onClick={onDismiss}
         >
           ×
         </button>
-        <p className={styles.eyebrow}>Today calls for confetti</p>
-        <h2 id="celebration-title">Today&apos;s birthday celebration</h2>
+        <p className={styles.eyebrow}>{text.celebrationEyebrow}</p>
+        <h2 id="celebration-title">{text.celebrationTitle}</h2>
         <p id="celebration-description" className={styles.intro}>
-          {students.length === 1
-            ? "One brilliant student is celebrating today!"
-            : `${students.length} brilliant students are celebrating today!`}
+          {text.celebrationDescription(students.length)}
         </p>
         <ul className={styles.students}>
           {students.map((student) => (
