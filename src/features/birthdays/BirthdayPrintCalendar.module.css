@@ -1,0 +1,218 @@
+.sheet {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  .sheet {
+    --print-navy: #172a46;
+    --print-coral: #ef6a5b;
+    --print-gold: #f4bf4f;
+    --print-sky: #b8dde0;
+    display: grid;
+    grid-template-rows: 35mm minmax(0, 1fr) 27mm 8mm;
+    gap: 5mm;
+    box-sizing: border-box;
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 10mm 11mm;
+    background: #fff8e9;
+    color: var(--print-navy);
+    font-family: "Trebuchet MS", "Avenir Next", Avenir, sans-serif;
+    font-size: 9.2pt;
+    line-height: 1.25;
+    break-inside: avoid-page;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+    border-bottom: 0.7mm solid var(--print-navy);
+    padding-bottom: 4mm;
+  }
+
+  .birthdayLogo {
+    flex: 0 0 31mm;
+    width: 31mm;
+    height: 31mm;
+    object-fit: contain;
+  }
+
+  .heading {
+    min-width: 0;
+  }
+
+  .eyebrow {
+    margin: 0 0 1.5mm;
+    color: #a8312b;
+    font-size: 10pt;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .title {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 26pt;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+
+  .subtitle {
+    margin: 2mm 0 0;
+    font-size: 10pt;
+  }
+
+  .monthGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 3.5mm;
+    min-height: 0;
+  }
+
+  .month {
+    min-width: 0;
+    border: 0.3mm solid #dfd4bd;
+    border-radius: 3mm;
+    background: #fffdf7;
+    break-inside: avoid-page;
+  }
+
+  .monthTitle {
+    margin: -0.3mm -0.3mm 0;
+    border-radius: 3mm 3mm 0 0;
+    padding: 1.5mm 3mm;
+    background: var(--print-navy);
+    color: #fffdf7;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13pt;
+    line-height: 1.1;
+  }
+
+  .month:nth-child(4n + 2) .monthTitle {
+    background: var(--print-coral);
+    color: var(--print-navy);
+  }
+
+  .month:nth-child(4n + 3) .monthTitle {
+    background: var(--print-gold);
+    color: var(--print-navy);
+  }
+
+  .month:nth-child(4n + 4) .monthTitle {
+    background: var(--print-sky);
+    color: var(--print-navy);
+  }
+
+  .birthdays {
+    margin: 0;
+    padding: 2mm 3mm;
+    list-style: none;
+  }
+
+  .dense {
+    column-count: 2;
+    column-gap: 2.5mm;
+    padding-inline: 2mm;
+    font-size: 8.6pt;
+  }
+
+  .birthday {
+    display: flex;
+    align-items: baseline;
+    gap: 1.7mm;
+    margin: 0;
+    padding: 0.3mm 0;
+    break-inside: avoid;
+  }
+
+  .day {
+    flex: 0 0 4.5mm;
+    color: #a8312b;
+    font-size: 8.5pt;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .bottomRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6mm;
+  }
+
+  .qrCallout {
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+    min-width: 0;
+  }
+
+  .qr {
+    flex: 0 0 26mm;
+    width: 26mm;
+    height: 26mm;
+    object-fit: contain;
+  }
+
+  .qrPrompt {
+    max-width: 32mm;
+    margin: 0;
+    font-size: 9pt;
+    font-weight: 700;
+  }
+
+  .partners {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4mm;
+  }
+
+  .universityLogo,
+  .linguapolisLogo {
+    width: 40mm;
+    height: 13mm;
+    object-fit: contain;
+  }
+
+  .footer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4mm;
+    border-top: 0.3mm solid #dfd4bd;
+    padding-top: 2mm;
+  }
+
+  .footerPhrase {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 10pt;
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  .credit {
+    margin: 0;
+    font-size: 7pt;
+    text-align: right;
+  }
+}
