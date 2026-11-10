@@ -19,6 +19,7 @@ import {
   type NotificationState,
 } from "./notifications";
 import styles from "./BirthdayDashboard.module.css";
+import { detectPrintEnvironment } from "./printEnvironment";
 import type { StudentBirthday } from "./types";
 
 const PORTFOLIO_URL = "https://omarcode.dev/";
@@ -28,6 +29,8 @@ export default function BirthdayDashboard() {
   const text = copy[language];
   const [students] = useState<StudentBirthday[]>(() => [...BUILT_IN_BIRTHDAYS]);
   const [search, setSearch] = useState("");
+  const [printEnvironment, setPrintEnvironment] =
+    useState<ReturnType<typeof detectPrintEnvironment>>("default");
   // Match server HTML before reading the visitor's date and browser permissions.
   const [now, setNow] = useState<Date | null>(null);
   const [notificationState, setNotificationState] =
@@ -111,6 +114,11 @@ export default function BirthdayDashboard() {
   }
 
   function handlePrint() {
+    setPrintEnvironment(detectPrintEnvironment({
+      userAgent: window.navigator.userAgent,
+      navigatorStandalone: (window.navigator as Navigator & { standalone?: boolean }).standalone,
+      displayModeStandalone: window.matchMedia?.("(display-mode: standalone)").matches ?? false,
+    }));
     window.print();
   }
 
@@ -157,6 +165,14 @@ export default function BirthdayDashboard() {
           </button>
         </div>
       </header>
+
+      {printEnvironment !== "default" ? (
+        <p className={styles.printFallback} role="status">
+          {printEnvironment === "ios-standalone"
+            ? text.iosStandalonePrintFallback
+            : text.iosPrintFallback}
+        </p>
+      ) : null}
 
       <section className={styles.hero} aria-labelledby="page-title">
         <p className={styles.eyebrow}>{text.eyebrow}</p>

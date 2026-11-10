@@ -13,10 +13,10 @@ describe("public built-in birthdays", () => {
       { id: "builtin-06", name: "Kadhim", birthDate: "2000-11-24" },
       { id: "builtin-07", name: "Celine", birthDate: "2000-04-17" },
       { id: "builtin-08", name: "Mohammed", birthDate: "2000-07-03" },
-      { id: "builtin-09", name: "Johans", birthDate: "2000-04-17" },
-      { id: "builtin-10", name: "Charbel", birthDate: "2000-01-15" },
+      { id: "builtin-09", name: "Johans", birthDate: "2000-04-12" },
+      { id: "builtin-10", name: "Charbel", birthDate: "2000-04-21" },
       { id: "builtin-11", name: "Maria.B", birthDate: "2000-02-25" },
-      { id: "builtin-12", name: "Eva", birthDate: "2000-07-11" },
+      { id: "builtin-12", name: "Eva.V", birthDate: "2000-07-11" },
       { id: "builtin-13", name: "Duru", birthDate: "2000-03-11" },
       { id: "builtin-14", name: "Victory", birthDate: "2000-03-16" },
       { id: "builtin-15", name: "Liza", birthDate: "2000-05-15" },
@@ -79,9 +79,9 @@ describe("public built-in birthdays", () => {
     }
   });
 
-  it("keeps both Eva birthdays as separate records", () => {
-    expect(BUILT_IN_BIRTHDAYS.filter(({ name }) => name === "Eva")).toEqual([
-      { id: "builtin-12", name: "Eva", birthDate: "2000-07-11" },
+  it("keeps the disambiguated Eva.V and Eva birthdays as separate records", () => {
+    expect(BUILT_IN_BIRTHDAYS.filter(({ name }) => name === "Eva.V" || name === "Eva")).toEqual([
+      { id: "builtin-12", name: "Eva.V", birthDate: "2000-07-11" },
       { id: "builtin-38", name: "Eva", birthDate: "2000-01-19" },
     ]);
   });

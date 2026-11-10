@@ -42,7 +42,7 @@ describe("birthday print calendar", () => {
 
     expect(january).toBeDefined();
     expect(Array.from(january!.querySelectorAll("li"), (item) => item.textContent)).toEqual([
-      "03 Trinity", "05 Graham", "07 Ginny", "07 Nothando", "12 Perle", "15 Charbel",
+      "03 Trinity", "05 Graham", "07 Ginny", "07 Nothando", "12 Perle",
       "16 Nabila", "18 Bill", "19 Eva", "20 Annisa", "21 Guerin", "30 Sara",
     ]);
   });

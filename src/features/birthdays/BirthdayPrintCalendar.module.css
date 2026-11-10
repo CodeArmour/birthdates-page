@@ -15,11 +15,13 @@
     --print-sky: #b8dde0;
     display: grid;
     grid-template-rows: 35mm minmax(0, 1fr) 27mm 8mm;
-    gap: 5mm;
+    gap: 4mm;
     box-sizing: border-box;
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
+    width: 100%;
+    max-width: 210mm;
+    height: auto;
+    aspect-ratio: 210 / 297;
+    margin: 0 auto;
     padding: 10mm 11mm;
     background: #fff8e9;
     color: var(--print-navy);
@@ -78,7 +80,7 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-rows: repeat(4, minmax(0, 1fr));
-    gap: 3.5mm;
+    gap: 3mm;
     min-height: 0;
   }
 
@@ -123,7 +125,8 @@
   }
 
   .dense {
-    column-count: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 2.5mm;
     padding-inline: 2mm;
     font-size: 8.6pt;
@@ -134,7 +137,7 @@
     align-items: baseline;
     gap: 1.7mm;
     margin: 0;
-    padding: 0.3mm 0;
+    padding: 0.2mm 0;
     break-inside: avoid;
   }
 

@@ -253,12 +253,12 @@ describe("birthday dashboard", () => {
       within(upcoming).getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent),
     ).toEqual([
       "Peter", "Birgit", "Lieve", "Omar", "Maria.B", "Akin", "Erdem", "Anna", "Duru", "Lee",
-      "Victory", "River", "Defne", "Celine", "Johans", "Reina", "Edjem", "Amanda", "Axel",
+      "Victory", "River", "Defne", "Johans", "Celine", "Charbel", "Reina", "Edjem", "Amanda", "Axel",
       "Emaan", "Hajar", "Maria.O", "Hassan", "Liza", "Elda", "Emmanuel", "Ali.H", "Mohammed",
-      "Eva", "Fren", "Eureolle", "Numa", "Rozhna", "Trawat", "Nidal", "Maksym", "Els",
+      "Eva.V", "Fren", "Eureolle", "Numa", "Rozhna", "Trawat", "Nidal", "Maksym", "Els",
       "Jomana", "Melike", "Ali.R", "Manef", "Nabeel", "Saja", "Noella", "Matiiss", "Zahra",
       "Carolin", "Kadhim", "Evariste", "Sally", "Trinity", "Graham", "Ginny",
-      "Nothando", "Perle", "Charbel", "Nabila", "Bill", "Eva", "Annisa", "Guerin",
+      "Nothando", "Perle", "Nabila", "Bill", "Eva", "Annisa", "Guerin",
     ]);
   });
 
