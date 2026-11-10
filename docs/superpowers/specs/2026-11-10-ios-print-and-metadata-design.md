@@ -58,4 +58,3 @@ This would be the most controlled output, but it would add backend infrastructur
 - No birthday, QR code, logo, footer, or developer credit is clipped.
 - The generated HTML advertises an Apple touch icon and manifest.
 - The manifest advertises 192px and 512px icons and standalone display.
-

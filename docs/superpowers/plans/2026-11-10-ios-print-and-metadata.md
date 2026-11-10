@@ -297,4 +297,3 @@ Append exact commands, PDF page count/dimensions, screenshots, metadata checks, 
 git add design-qa.md
 git commit -m "docs: record iOS export and metadata QA"
 ```
-
