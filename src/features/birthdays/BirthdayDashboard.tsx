@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import BirthdayCard from "./BirthdayCard";
+import BirthdayPrintCalendar from "./BirthdayPrintCalendar";
 import Celebration from "./Celebration";
 import { BUILT_IN_BIRTHDAYS } from "./builtInBirthdays";
 import { copy, type Language } from "./copy";
@@ -109,6 +110,10 @@ export default function BirthdayDashboard() {
     }
   }
 
+  function handlePrint() {
+    window.print();
+  }
+
   return (
     <div className={styles.page} lang={language}>
       <main id="main-content" lang={language}>
@@ -138,14 +143,19 @@ export default function BirthdayDashboard() {
             <a className={styles.portfolioLink} href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer">Omar</a>
           </p>
         </div>
-        <button
-          className={styles.languageButton}
-          type="button"
-          aria-label={text.languageLabel}
-          onClick={() => setLanguage(language === "en" ? "nl" : "en")}
-        >
-          <span lang={language === "en" ? "nl" : "en"}>{text.languageButton}</span>
-        </button>
+        <div className={styles.headerActions}>
+          <button className={styles.exportButton} type="button" onClick={handlePrint}>
+            {text.exportPdf}
+          </button>
+          <button
+            className={styles.languageButton}
+            type="button"
+            aria-label={text.languageLabel}
+            onClick={() => setLanguage(language === "en" ? "nl" : "en")}
+          >
+            <span lang={language === "en" ? "nl" : "en"}>{text.languageButton}</span>
+          </button>
+        </div>
       </header>
 
       <section className={styles.hero} aria-labelledby="page-title">
@@ -292,6 +302,7 @@ export default function BirthdayDashboard() {
           {" · "}{text.footerTagline}
         </p>
       </footer>
+      <BirthdayPrintCalendar students={students} language={language} />
     </div>
   );
 }

@@ -61,7 +61,15 @@
   text-decoration: none;
 }
 
-.languageButton {
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.languageButton,
+.exportButton {
   min-width: 44px;
   min-height: 44px;
   flex-shrink: 0;
@@ -76,8 +84,19 @@
   font-weight: 800;
 }
 
-.languageButton:hover {
+.languageButton:hover,
+.exportButton:hover {
   background: var(--color-gold);
+}
+
+.exportButton {
+  background: var(--color-coral);
+  box-shadow: 3px 3px 0 var(--color-navy);
+}
+
+.exportButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-navy);
 }
 
 .brandLogo {
@@ -189,6 +208,7 @@
 
 .hero h1 {
   max-width: 12ch;
+  overflow-wrap: anywhere;
   margin: 0 auto;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(3.25rem, 9vw, 7rem);
@@ -646,6 +666,12 @@
 }
 
 @media (max-width: 600px) {
+  .headerActions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+  }
+
   .partnerLogos {
     grid-template-columns: 1fr;
   }
@@ -691,5 +717,29 @@
 
   .notificationPanel button {
     width: 100%;
+  }
+}
+
+@media print {
+  :global(html),
+  :global(body) {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  :global(.skip-link),
+  .page > main,
+  .page > footer {
+    display: none !important;
+  }
+
+  .page {
+    min-height: 0;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+    background: none;
   }
 }
