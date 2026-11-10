@@ -24,12 +24,14 @@ describe("dashboard language switching", () => {
     expect(within(server).getByRole("main")).toHaveAttribute("lang", "en");
     expect(within(server).getByRole("heading", { name: "Student birthdays" })).toHaveTextContent("Student birthdays");
     expect(within(server).getByRole("button", { name: "Switch to Nederlands" })).toHaveTextContent("Nederlands");
+    expect(within(server).getByText("Export PDF", { selector: "button" })).toBeDefined();
 
     render(<BirthdayDashboard />);
     await screen.findByRole("dialog", { name: "Today's birthday celebration" });
     fireEvent.click(screen.getByRole("button", { name: "Switch to Nederlands" }));
 
     expect(screen.getByRole("main")).toHaveAttribute("lang", "nl");
+    expect(screen.getByRole("button", { name: "PDF exporteren" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^English — overschakelen naar Engels$/ })).toHaveTextContent("English");
     expect(screen.getByRole("heading", { name: "Verjaardagen van studenten" })).toBeInTheDocument();
     expect(screen.getByText("De feestkalender van de klas")).toBeInTheDocument();
@@ -37,7 +39,7 @@ describe("dashboard language switching", () => {
     expect(screen.getByRole("link", { name: "Startpagina verjaardagen van studenten" })).toHaveTextContent("Verjaardagskalender");
     expect(screen.getByText("Ontwikkeld door", { exact: false, selector: "header p" })).toHaveTextContent("Ontwikkeld door Omar");
     expect(screen.getByText("© 2026 Verjaardagskalender")).toBeVisible();
-    expect(screen.getByText("Met", { exact: false, selector: "footer p" })).toHaveTextContent(
+    expect(within(screen.getByRole("contentinfo")).getByText("Met", { exact: false, selector: "p" })).toHaveTextContent(
       "Met ♥liefde ontwikkeld door Omar · Elke bijzondere dag verdient een klein feestje.",
     );
     expect(screen.getByText("In samenwerking met")).toBeInTheDocument();
@@ -68,7 +70,7 @@ describe("dashboard language switching", () => {
     expect(screen.getByRole("heading", { name: "Student birthdays" })).toBeInTheDocument();
     expect(screen.getByText("Developed by", { exact: false })).toHaveTextContent("Developed by Omar");
     expect(screen.getByText("© 2026 Birthday desk")).toBeVisible();
-    expect(screen.getByText("Developed with", { exact: false })).toHaveTextContent(
+    expect(within(screen.getByRole("contentinfo")).getByText("Developed with", { exact: false })).toHaveTextContent(
       "Developed with ♥love by Omar · Every special day deserves a little celebration.",
     );
     expect(screen.getByRole("dialog", { name: "Today's birthday celebration" })).toHaveAccessibleDescription("One brilliant student is celebrating today!");
