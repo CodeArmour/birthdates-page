@@ -20,9 +20,11 @@
     width: 100%;
     max-width: 210mm;
     height: auto;
-    aspect-ratio: 210 / 297;
+    /* Leave 12mm below a full-width sheet for native iOS printable-area differences. */
+    aspect-ratio: 210 / 285;
     margin: 0 auto;
-    padding: 10mm 11mm;
+    /* Recover decorative bottom space so the month cards keep their readable size. */
+    padding: 9mm 11mm 0;
     background: #fff8e9;
     color: var(--print-navy);
     font-family: "Trebuchet MS", "Avenir Next", Avenir, sans-serif;

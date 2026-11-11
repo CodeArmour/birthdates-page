@@ -71,7 +71,7 @@ describe("dashboard PDF export", () => {
     );
   });
 
-  it.each(["display-mode", "navigator"] as const)("shows Safari-first guidance in iOS standalone via %s", async (signal) => {
+  it.each(["display-mode", "navigator"] as const)("shows conditional recovery guidance in iOS standalone via %s", async (signal) => {
     simulateIos(signal);
     const print = vi.spyOn(window, "print").mockImplementation(() => {});
     render(<BirthdayDashboard />);
@@ -80,14 +80,15 @@ describe("dashboard PDF export", () => {
     fireEvent.click(screen.getByRole("button", { name: "Export PDF" }));
 
     expect(print).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Printing may be blocked from the home-screen app. Open this page in Safari, then tap Share and choose Print.",
+    expect(screen.getByRole("status").textContent).toBe(
+      "If the print options did not open, open this page in Safari, then tap Share and choose Print.",
     );
   });
 
   it.each([
     ["browser", "Als het afdrukvenster niet opent, tik op Delen en kies daarna Druk af."],
-    ["display-mode", "Afdrukken kan worden geblokkeerd vanuit de app op het beginscherm. Open deze pagina in Safari, tik op Delen en kies daarna Druk af."],
+    ["display-mode", "Als de afdrukopties niet zijn geopend, open deze pagina in Safari, tik op Delen en kies daarna Druk af."],
+    ["navigator", "Als de afdrukopties niet zijn geopend, open deze pagina in Safari, tik op Delen en kies daarna Druk af."],
   ] as const)("translates existing %s guidance when switched to Dutch", async (signal, message) => {
     simulateIos(signal);
     const print = vi.spyOn(window, "print").mockImplementation(() => {});
@@ -97,7 +98,7 @@ describe("dashboard PDF export", () => {
     fireEvent.click(screen.getByRole("button", { name: "Switch to Nederlands" }));
 
     expect(print).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("status")).toHaveTextContent(message);
+    expect(screen.getByRole("status").textContent).toBe(message);
   });
 
   it("exports every built-in birthday even when the screen search has no matches", async () => {
