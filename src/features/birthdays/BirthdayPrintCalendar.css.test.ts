@@ -24,16 +24,26 @@ describe("birthday print layout contract", () => {
     expect(printRule("birthday")).toMatch(/break-inside:\s*avoid\s*;/);
   });
 
-  it("fits the available page width while preserving the portrait A4 ratio", () => {
+  it("fits the available width of a portrait A4 page", () => {
     const sheet = printRule("sheet");
 
     expect(sheet).toMatch(/(?:^|;)\s*width:\s*100%\s*;/);
     expect(sheet).toMatch(/max-width:\s*210mm\s*;/);
     expect(sheet).toMatch(/(?:^|;)\s*height:\s*auto\s*;/);
-    expect(sheet).toMatch(/aspect-ratio:\s*210\s*\/\s*297\s*;/);
+    expect(printStyles).toMatch(/size:\s*A4\s+portrait\s*;/);
     expect(sheet).toMatch(/margin:\s*0\s+auto\s*;/);
     expect(sheet).toMatch(/box-sizing:\s*border-box\s*;/);
     expect(sheet).not.toMatch(/(?:^|;)\s*(?:width:\s*210mm|height:\s*297mm)\s*;/);
+    expect(sheet).not.toMatch(/(?:^|;)\s*(?:min-|max-)?height:\s*[^;]*(?:%|vh|dvh|svh|lvh)/);
+  });
+
+  it("leaves a 12mm page-height guard at full A4 width for native iOS pagination", () => {
+    const ratio = printRule("sheet").match(/aspect-ratio:\s*([\d.]+)\s*\/\s*([\d.]+)\s*;/);
+
+    expect(ratio).not.toBeNull();
+    const fullWidthHeightMm = 210 * Number(ratio![2]) / Number(ratio![1]);
+    expect(297 - fullWidthHeightMm).toBeGreaterThanOrEqual(12);
+    expect(fullWidthHeightMm).toBeGreaterThanOrEqual(285);
   });
 
   it("reserves room for seven-entry months when browser margins reduce the sheet", () => {

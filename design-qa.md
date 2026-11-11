@@ -136,3 +136,26 @@ The supplied `C:\Users\omars\Desktop\Student Birthdates-phone.pdf` remains the o
 ### Result and remaining external check
 
 Final local regression result: passed. No production defect was found; only this QA record changed. Native iOS WebKit can block `window.print()`, especially from a home-screen app. A physical iPhone Safari/Chrome and installed-home-screen Share > Print/Save PDF re-test is still required to establish the on-device outcome. Chrome emulation and the 7mm constrained PDF do not guarantee arbitrary printer margins or iOS font/engine behavior; the constrained layout retains Task 2's small 1.55px minimum row clearance. The fallback correctly gives the user a manual route when programmatic printing is blocked.
+
+## Physical iPhone follow-up - 2026-11-11
+
+The user's screenshot `C:\Users\omars\Desktop\WhatsApp Image 2026-11-11 at 00.53.57.jpeg` is new RED evidence from the pushed build on an iOS 27 home-screen app. Native print options opened at A4 portrait and 100% scaling, but the range reads `Pages 1-2`; the second preview contains only a thin cream strip. This supersedes the earlier local-only success as evidence of the device outcome. The exact-height `210 / 297` sheet still had no reserve for the native printable area, even after replacing CSS columns with Grid.
+
+Changed only print sizing and conditional recovery wording. The sheet now uses `aspect-ratio: 210 / 285`, leaving 12mm at full 210mm A4 width. `padding: 9mm 11mm 0` reclaims 11mm of decorative vertical padding, preserving essentially the same month-card space without reducing any font, image, row-padding, or gap sizes. The cream ends earlier; the QR, both institution logos, footer phrase, and Omar credit remain intact. Browser-mode Share/Print copy is unchanged. Standalone English and Dutch guidance now starts conditionally with `If the print options did not open...` / `Als de afdrukopties niet zijn geopend...`.
+
+New evidence is in `tmp/pdfs/` (untracked):
+
+| PDF | Result |
+| --- | --- |
+| `task-6-normal.pdf` | 1 portrait A4 page, normal print CSS |
+| `task-6-constrained.pdf` | 1 portrait A4 page, imposed 7mm margins |
+| `task-6-asymmetric.pdf` | 1 portrait A4 page, imposed 14mm vertical / 7mm horizontal margins |
+| `task-6-before-asymmetric.pdf` | Old ratio/padding in the same asymmetric simulation: 2 pages, text-free cream strip on page 2 |
+
+The asymmetric margins are an inference from the screenshot's larger vertical white border, not measured iOS page settings. They reproduce the failure pattern in Chrome and exercise the height reserve; they do not establish the native engine's exact cause or guarantee the device result.
+
+Fresh `npm test -- --run` passes 108 tests across 20 files. Focused print tests pass 20/20; lint, build, and `git diff --check` pass. The CSS guard and exact bilingual standalone-copy tests failed before the implementation change. Production export code is unchanged, and existing synchronous, exactly-once `window.print()` coverage passes.
+
+`pdfinfo` and bundled `pypdf` independently confirm the three new final PDFs each contain one A4 page (594.95996 x 841.91998 pt, rotation 0), all 62 approved day/name pairs, all 12 months, four embedded images, footer phrase, and Omar credit. Full-page PNGs were rendered with Poppler and inspected: no clipped text, missing branding, or extra-page strip. At the constrained 741px measurement width, there are no birthday rows outside their cards; minimum row-bottom clearance is 1.36px, compared with 1.55px before this change. This remains a tight layout under imposed margins.
+
+Local verification passed. A post-fix physical iPhone home-screen/Safari retest is required for final confirmation, checking one page at A4 portrait/100%, all content, and conditional English/Dutch help. Chrome/PDF verification does not replace that retest.
