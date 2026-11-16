@@ -130,7 +130,7 @@ describe("dashboard PDF export", () => {
     const calendar = container.querySelector("[data-print-calendar]") as HTMLElement;
     expect(calendar).not.toBeNull();
     expect(calendar).toHaveAttribute("lang", "nl");
-    expect(within(calendar).getByText("Verjaardagenkalender")).toBeInTheDocument();
+    expect(within(calendar).getByText("Verjaardagskalender")).toBeInTheDocument();
     expect(within(calendar).getByText("Januari")).toBeInTheDocument();
     expect(within(calendar).getByText("December")).toBeInTheDocument();
     expect(print).not.toHaveBeenCalled();
