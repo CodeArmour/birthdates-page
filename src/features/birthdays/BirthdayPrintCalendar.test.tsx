@@ -66,11 +66,13 @@ describe("birthday print calendar", () => {
     );
 
     for (const text of [
-      "Onze klas", "Verjaardagenkalender", "Eén klas, het hele jaar lang", "Januari", "Maart",
-      "Scan voor onze website", "Gelukkige mensen, helderdere morgen", "Met liefde ontwikkeld door Omar",
+      "Onze klas", "Verjaardagskalender", "Eén klas, het hele jaar lang", "Januari", "Maart",
+      "Scan voor onze website", "Samen vieren, samen groeien", "Met liefde ontwikkeld door Omar",
     ]) {
       expect(within(container).getByText(text)).toBeInTheDocument();
     }
+    expect(within(container).queryByText("Verjaardagenkalender")).not.toBeInTheDocument();
+    expect(within(container).queryByText("Gelukkige mensen, helderdere morgen")).not.toBeInTheDocument();
     expect(container.querySelectorAll("li")).toHaveLength(62);
     expect(container.textContent).not.toContain("2000");
   });
