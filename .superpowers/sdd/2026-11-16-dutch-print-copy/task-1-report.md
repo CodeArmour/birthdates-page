@@ -28,4 +28,4 @@ After the production copy change, the focused command passed: 2 test files, 15 t
 No functional concerns. Existing untracked `tmp/` directory was preserved.
 
 ## Fix-wave note
-- Trimmed trailing blank lines and clarified the earlier working-tree check versus the final commit-range check. The final range check is recorded after the docs-only fix commit.
+- Trimmed trailing blank lines and clarified the earlier working-tree check versus the final commit-range check. After commit `f93b4ce`, `git diff --check fda72be359ccede69748430e84d4f128244d82ca..HEAD` passed with exit code 0.
