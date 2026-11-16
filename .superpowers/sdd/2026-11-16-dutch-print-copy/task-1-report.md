@@ -19,7 +19,7 @@ After the production copy change, the focused command passed: 2 test files, 15 t
 - `npm test -- --run`: passed, 20 files / 108 tests. Vitest emitted its jsdom startup performance notice.
 - `npm run lint`: passed.
 - `npm run build`: passed; Next.js compiled, typechecked, and generated static pages.
-- `git diff --check`: passed (Git printed a line-ending normalization warning for the edited test file).
+- Product working-tree `git diff --check` passed before commit; Git printed a line-ending normalization warning for the edited test file. The final commit-range check later found trailing blank lines in this report; those are corrected below.
 
 ## Commit
 56c471745acf6959cee86e218cc62a6abfea9212 (`Fix Dutch birthday print calendar copy`).
@@ -27,5 +27,5 @@ After the production copy change, the focused command passed: 2 test files, 15 t
 ## Concerns
 No functional concerns. Existing untracked `tmp/` directory was preserved.
 
-
-
+## Fix-wave note
+- Trimmed trailing blank lines and clarified the earlier working-tree check versus the final commit-range check. The final range check is recorded after the docs-only fix commit.
