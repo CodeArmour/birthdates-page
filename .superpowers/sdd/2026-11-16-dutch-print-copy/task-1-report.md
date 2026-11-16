@@ -33,4 +33,4 @@ No functional concerns. Existing untracked `tmp/` directory was preserved.
 - After safely rebasing onto `041e87d`, updated the strict built-in birthday fixture for Jomana from `2000-09-30` to the approved `2000-10-22`.
 - Updated the frozen-January upcoming-birthday order expectation to place Jomana after Manef, matching the new October 22 date.
 - Focused integration tests passed: 2 files / 18 tests. Full suite passed: 20 files / 108 tests. Lint and production build passed.
-- `git diff --check origin/feature/student-birthdates..HEAD` will be run after the integration alignment commit.
+- After integration commit `b3481e9`, `git diff --check origin/feature/student-birthdates..HEAD` passed with exit code 0.
