@@ -256,7 +256,7 @@ describe("birthday dashboard", () => {
       "Victory", "River", "Defne", "Johans", "Celine", "Charbel", "Reina", "Edjem", "Amanda", "Axel",
       "Emaan", "Hajar", "Maria.O", "Hassan", "Liza", "Elda", "Emmanuel", "Ali.H", "Mohammed",
       "Eva.V", "Fren", "Eureolle", "Numa", "Rozhna", "Trawat", "Nidal", "Maksym", "Els",
-      "Jomana", "Melike", "Ali.R", "Manef", "Nabeel", "Saja", "Noella", "Matiiss", "Zahra",
+      "Melike", "Ali.R", "Manef", "Jomana", "Nabeel", "Saja", "Noella", "Matiiss", "Zahra",
       "Carolin", "Kadhim", "Evariste", "Sally", "Trinity", "Graham", "Ginny",
       "Nothando", "Perle", "Nabila", "Bill", "Eva", "Annisa", "Guerin",
     ]);

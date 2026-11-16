@@ -22,10 +22,15 @@ After the production copy change, the focused command passed: 2 test files, 15 t
 - Product working-tree `git diff --check` passed before commit; Git printed a line-ending normalization warning for the edited test file. The final commit-range check later found trailing blank lines in this report; those are corrected below.
 
 ## Commit
-56c471745acf6959cee86e218cc62a6abfea9212 (`Fix Dutch birthday print calendar copy`).
+6970021 (`Fix Dutch birthday print calendar copy`, rebased onto `041e87d`).
 
 ## Concerns
 No functional concerns. Existing untracked `tmp/` directory was preserved.
 
 ## Fix-wave note
 - Trimmed trailing blank lines and clarified the earlier working-tree check versus the final commit-range check. After commit `f93b4ce`, `git diff --check fda72be359ccede69748430e84d4f128244d82ca..HEAD` passed with exit code 0.
+## Rebase integration alignment
+- After safely rebasing onto `041e87d`, updated the strict built-in birthday fixture for Jomana from `2000-09-30` to the approved `2000-10-22`.
+- Updated the frozen-January upcoming-birthday order expectation to place Jomana after Manef, matching the new October 22 date.
+- Focused integration tests passed: 2 files / 18 tests. Full suite passed: 20 files / 108 tests. Lint and production build passed.
+- `git diff --check origin/feature/student-birthdates..HEAD` will be run after the integration alignment commit.
